@@ -94,9 +94,10 @@ write_back() {
   git clone \
     --depth 1 \
     --branch "$BRANCH_NAME" \
-    "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+    "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+    ../out_repo
 
-  cd "$GITHUB_REPOSITORY"
+  cd "../out_repo"
 
   mkdir -p "$OUTPUT_DIR"
 
