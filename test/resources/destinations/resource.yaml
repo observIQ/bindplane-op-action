@@ -1,153 +1,235 @@
 ---
 apiVersion: bindplane.observiq.com/v1
-kind: Configuration
+kind: Destination
 metadata:
-    id: k8s-cluster
-    name: k8s-cluster
-    labels:
-        platform: kubernetes-deployment
+    id: bindplane-gateway-agent
+    name: bindplane-gateway-agent
 spec:
-    contentType: ""
-    measurementInterval: ""
-    sources:
-        - id: 01HMS8GVNVFVD5TSWTKSJR1RY5
-          type: k8s_cluster
-          parameters:
-            - name: cluster_name
-              value: minikube
-            - name: node_conditions_to_report
-              value:
-                - Ready
-                - DiskPressure
-                - MemoryPressure
-                - PIDPressure
-                - NetworkUnavailable
-            - name: allocatable_types_to_report
-              value:
-                - cpu
-                - memory
-                - ephemeral-storage
-                - storage
-            - name: collection_interval
-              value: 60
-            - name: distribution
-              value: kubernetes
-        - id: 01HMS8GVNVFVD5TSWTKVNZS2JC
-          displayName: Production events
-          type: k8s_events
-          parameters:
-            - name: cluster_name
-              value: minikube
-            - name: namespaces
-              value:
-                - kube-system
-                - production
-    destinations:
-        - id: 01HMS8GVNVFVD5TSWTKZZNHB8R
-          name: bindplane-gateway-agent
-    selector:
-        matchLabels:
-            configuration: k8s-cluster
+    type: otlp_grpc
+    parameters:
+        - name: hostname
+          value: bindplane-gateway-agent.bindplane-agent.svc.cluster.local
+        - name: grpc_port
+          value: 4317
+        - name: http_port
+          value: 4318
+        - name: protocol
+          value: grpc
+        - name: headers
+          value: {}
+        - name: http_compression
+          value: gzip
+        - name: grpc_compression
+          value: gzip
+        - name: enable_tls
+          value: false
+        - name: insecure_skip_verify
+          value: false
+        - name: ca_file
+          value: ""
+        - name: mutual_tls
+          value: false
+        - name: cert_file
+          value: ""
+        - name: key_file
+          value: ""
+        - name: retry_on_failure_enabled
+          value: true
+        - name: retry_on_failure_initial_interval
+          value: 5
+        - name: retry_on_failure_max_interval
+          value: 30
+        - name: retry_on_failure_max_elapsed_time
+          value: 300
+        - name: sending_queue_enabled
+          value: true
+        - name: sending_queue_num_consumers
+          value: 10
+        - name: sending_queue_queue_size
+          value: 5000
+        - name: persistent_queue_enabled
+          value: true
+        - name: persistent_queue_directory
+          value: $OIQ_OTEL_COLLECTOR_HOME/storage
+status:
+    latest: true
 ---
 apiVersion: bindplane.observiq.com/v1
-kind: Configuration
+kind: Destination
 metadata:
-    id: k8s-gateway
-    name: k8s-gateway
-    labels:
-        platform: kubernetes-gateway
+    id: coralogix
+    name: coralogix
 spec:
-    contentType: ""
-    measurementInterval: ""
-    sources:
-        - id: 01HMS8J2WPEVAX0RSCPW4ZNWT5
-          type: otlp
-          parameters:
-            - name: telemetry_types
-              value:
-                - Metrics
-                - Logs
-                - Traces
-            - name: listen_address
-              value: 0.0.0.0
-            - name: grpc_port
-              value: 4317
-            - name: http_port
-              value: 4318
-            - name: enable_tls
-              value: false
-            - name: cert_file
-              value: ""
-            - name: key_file
-              value: ""
-            - name: mutual_tls
-              value: false
-            - name: ca_file
-              value: ""
-            - name: enable_grpc_timeout
-              value: true
-            - name: grpc_max_connection_idle
-              value: 60
-            - name: grpc_max_connection_age
-              value: 60
-            - name: grpc_max_connection_age_grace
-              value: 300
-    destinations:
-        - id: 01HMS8J2WPEVAX0RSCQ1NZ5KB6
-          name: coralogix
-        - id: 01HMS8K1AEYPBCBN47ZFYM3X7J
-          name: elasticsearch-internal
-        - id: 01HMS8KV7K4N2WKJ3337T9KJ2M
-          name: prometheus-internal
-    selector:
-        matchLabels:
-            configuration: k8s-gateway
+    type: coralogix
+    parameters:
+        - name: private_key
+          value: (sensitive)
+          sensitive: true
+        - name: application_name
+          value: bindplane-test
+        - name: subsystem_name
+          value: test
+        - name: region
+          value: USA1
+        - name: domain
+          value: ""
+        - name: resource_attributes
+          value: true
+        - name: application_name_attributes
+          value: []
+        - name: subsystem_name_attributes
+          value: []
+        - name: enable_metrics
+          value: true
+        - name: enable_logs
+          value: true
+        - name: enable_traces
+          value: true
+        - name: timeout
+          value: 5
+        - name: compression
+          value: gzip
+        - name: retry_on_failure_enabled
+          value: true
+        - name: retry_on_failure_initial_interval
+          value: 5
+        - name: retry_on_failure_max_interval
+          value: 30
+        - name: retry_on_failure_max_elapsed_time
+          value: 300
+        - name: sending_queue_enabled
+          value: true
+        - name: sending_queue_num_consumers
+          value: 10
+        - name: sending_queue_queue_size
+          value: 5000
+        - name: persistent_queue_enabled
+          value: true
+        - name: persistent_queue_directory
+          value: $OIQ_OTEL_COLLECTOR_HOME/storage
+status:
+    latest: true
 ---
 apiVersion: bindplane.observiq.com/v1
-kind: Configuration
+kind: Destination
 metadata:
-    id: k8s-node
-    name: k8s-node
-    labels:
-        platform: kubernetes-daemonset
+    id: elasticsearch-internal
+    name: elasticsearch-internal
 spec:
-    contentType: ""
-    measurementInterval: ""
-    sources:
-        - id: 01HMS8ERRSFYE4KGQVQ2ZXXDZK
-          type: k8s_container
-          parameters:
-            - name: cluster_name
-              value: minikube
-            - name: log_source
-              value: file
-            - name: file_path
-              value:
-                - /var/log/containers/*.log
-            - name: exclude_file_path
-              value:
-                - /var/log/containers/observiq-*-collector-*
-                - /var/log/containers/bindplane-*-agent-*
-            - name: journald_path
-              value: ""
-            - name: start_at
-              value: end
-        - id: 01HMS8ERRSFYE4KGQVQ8DQC5X0
-          type: k8s_kubelet
-          parameters:
-            - name: cluster_name
-              value: minikube
-            - name: metric_groups
-              value:
-                - node
-                - pod
-                - container
-                - volume
-            - name: collection_interval
-              value: 60
-    destinations:
-        - id: 01HMS8HBK216AD6V30GKX968XK
-          name: bindplane-gateway-agent
-    selector:
-        matchLabels:
-            configuration: k8s-node
+    type: elasticsearch
+    parameters:
+        - name: enable_elastic_cloud
+          value: false
+        - name: endpoints
+          value:
+            - https://es-0.corp.net:9200
+            - https://es-1.corp.net:9200
+        - name: cloudid
+          value: ""
+        - name: enable_logs
+          value: true
+        - name: logs_index
+          value: logs-generic-default
+        - name: enable_traces
+          value: true
+        - name: traces_index
+          value: traces-generic-default
+        - name: pipeline
+          value: ""
+        - name: enable_auth
+          value: false
+        - name: auth_type
+          value: basic
+        - name: user
+          value: ""
+        - name: password
+          value: (sensitive)
+          sensitive: true
+        - name: api_key
+          value: (sensitive)
+          sensitive: true
+        - name: configure_tls
+          value: false
+        - name: insecure_skip_verify
+          value: false
+        - name: ca_file
+          value: ""
+        - name: mutual_tls
+          value: false
+        - name: cert_file
+          value: ""
+        - name: key_file
+          value: ""
+        - name: retry_on_failure_enabled
+          value: true
+        - name: num_workers
+          value: 0
+        - name: sending_queue_enabled
+          value: true
+        - name: sending_queue_num_consumers
+          value: 10
+        - name: sending_queue_queue_size
+          value: 5000
+        - name: persistent_queue_enabled
+          value: true
+        - name: persistent_queue_directory
+          value: $OIQ_OTEL_COLLECTOR_HOME/storage
+status:
+    latest: true
+---
+apiVersion: bindplane.observiq.com/v1
+kind: Destination
+metadata:
+    id: prometheus-internal
+    name: prometheus-internal
+spec:
+    type: prometheus_remote_write
+    parameters:
+        - name: hostname
+          value: prom-prod.corp.net
+        - name: port
+          value: 9009
+        - name: path
+          value: /api/v1/write
+        - name: add_unit_and_type
+          value: true
+        - name: namespace
+          value: ""
+        - name: compression
+          value: gzip
+        - name: enable_resource_to_telemetry_conversion
+          value: true
+        - name: headers
+          value: {}
+        - name: external_labels
+          value: {}
+        - name: enable_tls
+          value: false
+        - name: strict_tls_verify
+          value: false
+        - name: ca_file
+          value: ""
+        - name: mutual_tls
+          value: false
+        - name: cert_file
+          value: ""
+        - name: key_file
+          value: ""
+        - name: enable_write_ahead_log
+          value: false
+        - name: wal_storage_path
+          value: prometheus_rw
+        - name: wal_buffer_size
+          value: 300
+        - name: wal_truncate_frequency
+          value: 60
+        - name: retry_on_failure_enabled
+          value: true
+        - name: retry_on_failure_initial_interval
+          value: 5
+        - name: retry_on_failure_max_interval
+          value: 30
+        - name: retry_on_failure_max_elapsed_time
+          value: 300
+status:
+    latest: true
