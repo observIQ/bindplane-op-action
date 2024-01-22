@@ -69,7 +69,8 @@ jobs:
           remote_url: http://localhost:3001
           username: admin
           password: admin
-          destination_path: test/resources/destinations
+          # Testing tailing and non trailing slash
+          destination_path: test/resources/destinations/
           configuration_path: test/resources/configurations
 
       - name: Get Resources
