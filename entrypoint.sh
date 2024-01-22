@@ -11,6 +11,9 @@ CONFIG_PATH=$6
 OUTPUT_PATH=$7
 OUTPUT_BRANCH=$8
 
+BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
+echo "Current branch is $BRANCH_NAME"
+
 install_bindplane_cli() {
   curl -Ls \
     -o bindplane.zip \
@@ -55,6 +58,16 @@ validate() {
 }
 
 write_back() {
+  # If output branch matches current branch, write back to repo
+  if [ "$BRANCH_NAME" == "$OUTPUT_BRANCH" ]; then
+    echo "Writing back to repo"
+    # TODO, move logic here
+  else
+    echo "Skipping repo write. Current branch ${BRANCH_NAME} does not match output branch ${OUTPUT_BRANCH}."
+  fi
+
+  # TODO handle output path dir checks
+
   mkdir tmp
   for config in $(bindplane get config | awk 'NR>1 {print $1}'); do
     bindplane get config "$config" -o raw > "tmp/$config.yaml"
