@@ -18,12 +18,12 @@ inputs:
     description: 'Path to the file or directory which contains the BindPlane configuration resources'
 
 runs:
-  using: 'shell'
-  command: |
-    ./action/bindplane.sh \
-      ${{ inputs.remote_url }} \
-      ${{ inputs.api_key }} \
-      ${{ inputs.username }} \
-      ${{ inputs.password }} \
-      ${{ inputs.destination_path }} \
-      ${{ inputs.configuration_path }}
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.remote_url }}
+    - ${{ inputs.api_key }}
+    - ${{ inputs.username }}
+    - ${{ inputs.password }}
+    - ${{ inputs.destination_path }}
+    - ${{ inputs.configuration_path }}
