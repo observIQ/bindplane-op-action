@@ -93,8 +93,8 @@ jobs:
       - name: Get Resources
         if: always()
         run: |
-          bindplane get destinations
-          bindplane get configurations
+          docker exec bindplane /bindplane get destinations
+          docker exec bindplane /bindplane get configurations
 
       - name: Debug Container Logs
         if: always()
