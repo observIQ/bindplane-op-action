@@ -72,6 +72,12 @@ jobs:
           destination_path: test/resources/destinations
           configuration_path: test/resources/configurations
 
+      - name: Get Resources
+        if: always()
+        run: |
+          bindplane get destinations
+          bindplane get configurations
+
       - name: Debug Container Logs
         if: always()
         run: docker logs bindplane
