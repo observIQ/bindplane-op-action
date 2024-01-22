@@ -101,7 +101,7 @@ write_back() {
   mkdir -p "$OUTPUT_DIR"
 
   for config in $(bindplane get config | awk 'NR>1 {print $1}'); do
-    out_file="$GITHUB_REPOSITORY/$OUTPUT_DIR/$config.yaml"
+    out_file="$OUTPUT_DIR/$config.yaml"
     bindplane get config "$config" -o raw > "$out_file"
     git add "$out_file"
   done
