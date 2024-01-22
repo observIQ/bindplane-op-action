@@ -1,0 +1,56 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  # Allow action to write raw configs back to the repository.
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    matrix:
+      bindplane_versions:
+        - 1.40.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Start BindPlane
+        run: |
+          docker run \
+            --name bindplane \
+            -e BINDPLANE_USERNAME=admin \
+            -e BINDPLANE_PASSWORD=admin \
+            -e BINDPLANE_REMOTE_URL=http://localhost:3001 \
+            -e BINDPLANE_SESSION_SECRET=2c23c9d3-850f-4062-a5c8-3f9b814ae144 \
+            -e BINDPLANE_SECRET_KEY=8a5353f7-bbf4-4eea-846d-a6d54296b781 \
+            -e BINDPLANE_LOG_OUTPUT=stdout \
+            -e BINDPLANE_ACCEPT_EULA=true \
+            -p 3001:3001 \
+            ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          # These values are hardcode to match the test instance used by
+          # this workflow. The instance does not persist. Consumers of 
+          # this action should always use secrets when passing in the remote
+          # url, username, password or api key.
+          #
+          # Remote url will never be localhost when running this action. In this
+          # case, bindplane is literally running within the runner instance.
+          remote_url: http://localhost:3001
+          username: admin
+          password: admin
+          destination_path: test/resources/destinations
+          configuration_path: test/resources/configurations
+
+      - name: Debug Container Logs
+        if: always()
+        run: docker logs bindplane

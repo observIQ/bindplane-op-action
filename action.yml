@@ -1,0 +1,29 @@
+name: 'BindPlane OP Action'
+description: 'GitHub Action for BindPlane OP.'
+author: 'observIQ'
+
+inputs:
+  remote_url:
+    description: 'The URL that will be used to connect to BindPlane OP'
+    required: true
+  api_key:
+    description: 'The BindPlane OP API key that will be used to authenticate to BindPlane OP'
+  username:
+    description: 'The BindPlane OP username that will be used to authenticate to BindPlane OP'
+  password:
+    description: 'The BindPlane OP password that will be used to authenticate to BindPlane OP'
+  destination_path:
+    description: 'Path to the file or directory which contains the BindPlane destination resources'
+  configuration_path:
+    description: 'Path to the file or directory which contains the BindPlane configuration resources'
+
+runs:
+  using: 'shell'
+  command: |
+    ./action/bindplane.sh \
+      ${{ inputs.remote_url }} \
+      ${{ inputs.api_key }} \
+      ${{ inputs.username }} \
+      ${{ inputs.password }} \
+      ${{ inputs.destination_path }} \
+      ${{ inputs.configuration_path }}
