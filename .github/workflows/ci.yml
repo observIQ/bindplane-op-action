@@ -40,8 +40,10 @@ jobs:
             -p 3001:3001 \
             ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
 
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v5
+      - name: Run BindPlane Action
+        # This should be replaced with a release action.
+        # <organization>/<repository>@<tag>
+        uses: ./
         with:
           # These values are hardcode to match the test instance used by
           # this workflow. The instance does not persist. Consumers of 
