@@ -5,8 +5,6 @@ on:
     branches:
       - main
       - dev
-    # paths:
-    #   - 'test/resources/**'
 
 permissions:
   # Allow action to write raw configs back to the repository.
