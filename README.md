@@ -25,6 +25,11 @@ on:
 permissions:
   contents: write
 
+# Run commits in order to prevent out of order write back commits.
+concurrency:
+  group: ${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
