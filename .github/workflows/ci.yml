@@ -36,6 +36,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Detect Runner IP
+        id: ip
+        uses: haythem/public-ip@v1.2
+
       - name: Pull BindPlane
         run: docker pull ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
 
@@ -44,11 +48,9 @@ jobs:
           docker run \
             -d \
             --name bindplane \
-            -e BINDPLANE_HOST=0.0.0.0 \
-            -e BINDPLANE_PORT=3001 \
             -e BINDPLANE_USERNAME=admin \
             -e BINDPLANE_PASSWORD=admin \
-            -e BINDPLANE_REMOTE_URL=http://localhost:3001 \
+            -e BINDPLANE_REMOTE_URL=http://${{ steps.ip.outputs.ipv4 }}:3001 \
             -e BINDPLANE_SESSION_SECRET=2c23c9d3-850f-4062-a5c8-3f9b814ae144 \
             -e BINDPLANE_SECRET_KEY=8a5353f7-bbf4-4eea-846d-a6d54296b781 \
             -e BINDPLANE_LOG_OUTPUT=stdout \
@@ -75,9 +77,11 @@ jobs:
           # this action should always use secrets when passing in the remote
           # url, username, password or api key.
           #
-          # Remote url will never be localhost when running this action. In this
-          # case, bindplane is literally running within the runner instance.
-          remote_url: http://localhost:3001
+          # Remote url will never be localhost when running this action. The action
+          # executes in a container and localhost will always be the container's network
+          # and not the network of the bindplane instance, even if that instance
+          # is running within this runner.
+          remote_url: http://${{ steps.ip.outputs.ipv4 }}:3001
           username: admin
           password: admin
           # Testing tailing and non trailing slash
