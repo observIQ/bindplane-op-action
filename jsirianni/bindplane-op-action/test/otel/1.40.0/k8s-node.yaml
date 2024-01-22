@@ -1,0 +1,85 @@
+# This configuration is managed by BindPlane OP.
+# Configuration: k8s-node:1
+receivers:
+    kubeletstats/source1_01HMS8ERRSFYE4KGQVQ8DQC5X0:
+        auth_type: serviceAccount
+        collection_interval: 1m0s
+        endpoint: ${KUBE_NODE_NAME}:10250
+        insecure_skip_verify: true
+        metric_groups:
+            - node
+            - pod
+            - container
+            - volume
+    plugin/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK__container:
+        parameters:
+            body_json_parsing: true
+            exclude_file_log_path:
+                - /var/log/containers/observiq-*-collector-*
+                - /var/log/containers/bindplane-*-agent-*
+            log_paths:
+                - /var/log/containers/*.log
+            log_source: file
+            start_at: end
+        path: $OIQ_OTEL_COLLECTOR_HOME/plugins/container_logs.yaml
+processors:
+    batch/bindplane-gateway-agent: null
+    resource/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK:
+        attributes:
+            - action: insert
+              key: k8s.cluster.name
+              value: minikube
+            - action: insert
+              key: k8s.node.name
+              value: ${KUBE_NODE_NAME}
+    resource/source1_01HMS8ERRSFYE4KGQVQ8DQC5X0:
+        attributes:
+            - action: insert
+              key: k8s.cluster.name
+              value: minikube
+            - action: insert
+              key: k8s.node.name
+              value: ${KUBE_NODE_NAME}
+exporters:
+    otlp/bindplane-gateway-agent:
+        compression: gzip
+        endpoint: bindplane-gateway-agent.bindplane-agent.svc.cluster.local:4317
+        retry_on_failure:
+            enabled: true
+            initial_interval: 5s
+            max_elapsed_time: 300s
+            max_interval: 30s
+        sending_queue:
+            enabled: true
+            num_consumers: 10
+            queue_size: 5000
+            storage: file_storage/bindplane-gateway-agent
+        tls:
+            insecure: true
+extensions:
+    file_storage/bindplane-gateway-agent:
+        compaction:
+            directory: $OIQ_OTEL_COLLECTOR_HOME/storage
+            on_rebound: true
+        directory: $OIQ_OTEL_COLLECTOR_HOME/storage
+service:
+    extensions:
+        - file_storage/bindplane-gateway-agent
+    pipelines:
+        logs/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK__bindplane-gateway-agent-0:
+            receivers:
+                - plugin/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK__container
+            processors:
+                - resource/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK
+                - batch/bindplane-gateway-agent
+            exporters:
+                - otlp/bindplane-gateway-agent
+        metrics/source1_01HMS8ERRSFYE4KGQVQ8DQC5X0__bindplane-gateway-agent-0:
+            receivers:
+                - kubeletstats/source1_01HMS8ERRSFYE4KGQVQ8DQC5X0
+            processors:
+                - resource/source1_01HMS8ERRSFYE4KGQVQ8DQC5X0
+                - batch/bindplane-gateway-agent
+            exporters:
+                - otlp/bindplane-gateway-agent
+
