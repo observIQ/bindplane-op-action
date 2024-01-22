@@ -44,11 +44,11 @@ validate() {
   if [ -z "$USERNAME" ] && [ -z "$API_KEY" ]; then
     echo "api key is required when username is not set."
     exit 1
-  else
+  elif [ -n "$API_KEY" ]; then
     profile_args="$profile_args --api-key $API_KEY"
-  fi
+  fi  
 
-  eval bindplane profile set "action" $profile_args
+  eval bindplane profile set "action" "$profile_args"
   bindplane profile use "action"
 }
 
