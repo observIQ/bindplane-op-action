@@ -13,9 +13,9 @@ inputs:
   password:
     description: 'The BindPlane OP password that will be used to authenticate to BindPlane OP'
   destination_path:
-    description: 'Path to the file or directory which contains the BindPlane destination resources'
+    description: 'Path to the file which contains the BindPlane destination resources'
   configuration_path:
-    description: 'Path to the file or directory which contains the BindPlane configuration resources'
+    description: 'Path to the file which contains the BindPlane configuration resources'
 
 runs:
   using: 'docker'

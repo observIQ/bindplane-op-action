@@ -52,26 +52,10 @@ validate() {
   bindplane profile use "action"
 }
 
-# Apply generic path takes a directory or file path
-# and applys it to BindPlane. If the path is a directory
-# it will apply all files in the directory using a * glob
-# pattern suffix.
-apply_generic_path() {
-  if [ -z "$1" ]; then
-    return
-  fi
-    
-  if [ -d "$1" ]; then
-    bindplane apply -f "$1/*"
-  else
-    bindplane apply -f "$1"
-  fi
-}
-
 install_bindplane_cli
 validate
 # Apply will apply resources in the correct order. Re-usable
 # resources must exist before they can be referenced by
 # a configuration.
-apply_generic_path "$DESTINATION_PATH"
-apply_generic_path "$CONFIG_PATH"
+bindplane apply "$DESTINATION_PATH"
+bindplane apply "$CONFIG_PATH"
