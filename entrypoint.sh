@@ -89,7 +89,12 @@ write_back() {
     return
   fi
 
-  git clone https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
+  # Clone the repo on the current branch
+  # and use depth 1 to avoid cloning the entire history.
+  git clone \
+    --depth 1 \
+    --branch "$BRANCH_NAME" \
+    https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
 
   mkdir -p "$GITHUB_REPOSITORY/$OUTPUT_DIR"
 
@@ -102,7 +107,7 @@ write_back() {
   git config --global user.email "bindplane-op-action"
   git config --global user.name "bindplane-op-action"
   git commit -m "BindPlane OP Action: Update OTEL Configs"
-  git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git" "HEAD:$OUTPUT_BRANCH"
+  git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
 }
 
 install_bindplane_cli
