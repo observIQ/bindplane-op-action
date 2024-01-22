@@ -28,7 +28,7 @@ jobs:
       - name: Start BindPlane
         run: |
           docker run \
-            -d
+            -d \
             --name bindplane \
             -e BINDPLANE_USERNAME=admin \
             -e BINDPLANE_PASSWORD=admin \
