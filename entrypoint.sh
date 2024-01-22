@@ -96,13 +96,21 @@ write_back() {
     --branch "$BRANCH_NAME" \
     "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-  mkdir -p "$GITHUB_REPOSITORY/$OUTPUT_DIR"
+  cd "$GITHUB_REPOSITORY"
+
+  mkdir -p "$OUTPUT_DIR"
 
   for config in $(bindplane get config | awk 'NR>1 {print $1}'); do
     out_file="$GITHUB_REPOSITORY/$OUTPUT_DIR/$config.yaml"
     bindplane get config "$config" -o raw > "$out_file"
     git add "$out_file"
   done
+
+  # check if git status is clean, return early
+  if [[ -z $(git status --porcelain) ]]; then
+    echo "No changes detected. Skipping commit."
+    return
+  fi
 
   git config --global user.email "bindplane-op-action"
   git config --global user.name "bindplane-op-action"
