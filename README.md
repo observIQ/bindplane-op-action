@@ -39,8 +39,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run GoReleaser
-        uses: jsirianni/bindplane-op-action@main
+      - uses: observIQ/bindplane-op-action@main
         with:
           remote_url: ${{ secrets.BINDPLANE_REMOTE_URL }}
           username: ${{ secrets.BINDPLANE_USERNAME }}
