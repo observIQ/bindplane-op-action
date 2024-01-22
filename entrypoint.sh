@@ -14,9 +14,12 @@ install_bindplane_cli() {
     -o bindplane.zip \
     https://storage.googleapis.com/bindplane-op-releases/bindplane/latest/bindplane-ee-linux-amd64.zip
 
-  unzip bindplane.zip
+  mkdir -p ~/bin
+  export PATH=$PATH:~/bin
 
-  ./bindplane --help > /dev/null
+  unzip bindplane.zip -d ~/bin
+
+  bindplane --help > /dev/null
 }
 
 # Validate will ensure that all required variables are set
