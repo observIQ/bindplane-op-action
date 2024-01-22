@@ -36,6 +36,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        # This matrix allows us to test multiple bindplane versions.
+        # When writing back to the repo, we write to directories based
+        # on the bindplane version.
         bindplane_versions:
           - 1.40.0
           - 1.37.0
