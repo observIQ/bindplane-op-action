@@ -8,6 +8,8 @@ USERNAME=$3
 PASSWORD=$4
 DESTINATION_PATH=$5
 CONFIG_PATH=$6
+OUTPUT_PATH=$7
+OUTPUT_BRANCH=$8
 
 install_bindplane_cli() {
   curl -Ls \
@@ -52,6 +54,14 @@ validate() {
   bindplane profile use "action"
 }
 
+write_back() {
+  mkdir tmp
+  for config in $(bindplane get config | awk 'NR>1 {print $1}'); do
+    bindplane get config "$config" -o raw > "tmp/$config.yaml"
+  done
+  ls tmp
+}
+
 install_bindplane_cli
 validate
 # Apply will apply resources in the correct order. Re-usable
@@ -59,3 +69,4 @@ validate
 # a configuration.
 bindplane apply "$DESTINATION_PATH"
 bindplane apply "$CONFIG_PATH"
+write_back

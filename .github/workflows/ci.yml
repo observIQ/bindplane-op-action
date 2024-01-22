@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+      - dev
+    paths:
+      - 'test/resources/**'
 
 permissions:
   # Allow action to write raw configs back to the repository.
@@ -90,6 +93,8 @@ jobs:
           # Testing tailing and non trailing slash
           destination_path: test/resources/destinations/resource.yaml
           configuration_path: test/resources/configurations/resource.yaml
+          configuration_output_path: test/otel/output-${{ matrix.bindplane_versions }}.yaml
+          configuration_output_branch: dev
 
       - name: Get Resources
         if: always()

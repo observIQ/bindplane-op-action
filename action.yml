@@ -16,6 +16,10 @@ inputs:
     description: 'Path to the file which contains the BindPlane destination resources'
   configuration_path:
     description: 'Path to the file which contains the BindPlane configuration resources'
+  configuration_output_path:
+    description: 'Path to the file which will contain the rendered OTEL format of the configuration resources'
+  configuration_output_branch:
+    description: 'The branch to commit the rendered OTEL format of the configuration resources to. This branch must also be the branch the action is running on'
 
 runs:
   using: 'docker'
@@ -27,3 +31,5 @@ runs:
     - ${{ inputs.password }}
     - ${{ inputs.destination_path }}
     - ${{ inputs.configuration_path }}
+    - ${{ inputs.configuration_output_path }}
+    - ${{ inputs.configuration_output_branch }}
