@@ -37,7 +37,7 @@ jobs:
           fetch-depth: 0
 
       - name: Detect Runner IP
-        run: ip addr show | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | cut -f1 -d'/'
+        run: echo "MAIN_IP=$(ip addr show | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | cut -f1 -d'/' | head -n 1)" >> $GITHUB_ENV
 
       - name: Print Runner IP
         run: echo $MAIN_IP
