@@ -30,6 +30,7 @@ jobs:
       matrix:
         bindplane_versions:
           - 1.40.0
+          - 1.37.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
