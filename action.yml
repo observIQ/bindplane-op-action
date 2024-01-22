@@ -20,6 +20,8 @@ inputs:
     description: 'Path to the directory which will contain the rendered OTEL format of the configuration resources'
   configuration_output_branch:
     description: 'The branch to commit the rendered OTEL format of the configuration resources to. This branch must also be the branch the action is running on'
+  token:
+    description: 'The GitHub token used to authenticate to GitHub when writing OTEL configs back to the repo'
 
 runs:
   using: 'docker'
@@ -33,3 +35,4 @@ runs:
     - ${{ inputs.configuration_path }}
     - ${{ inputs.configuration_output_dir }}
     - ${{ inputs.configuration_output_branch }}
+    - ${{ inputs.token }}

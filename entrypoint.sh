@@ -10,8 +10,9 @@ DESTINATION_PATH=$5
 CONFIG_PATH=$6
 OUTPUT_DIR=$7
 OUTPUT_BRANCH=$8
+GITHUB_TOKEN=$9
 
-BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
+BRANCH_NAME=${GITHUB_REF#refs/heads/}
 echo "Current branch is $BRANCH_NAME"
 
 install_bindplane_cli() {
@@ -53,9 +54,29 @@ validate() {
     profile_args="$profile_args --api-key $API_KEY"
   fi
 
-  if [ -n "$OUTPUT_BRANCH" ] && [ -z "$OUTPUT_DIR" ]; then
-    echo "OUTPUT_DIR is required when OUTPUT_BRANCH is set."
-    exit 1
+  if [ -n "$OUTPUT_BRANCH" ]; then
+    if [ -z "$OUTPUT_DIR" ]; then
+      echo "OUTPUT_DIR is required when OUTPUT_BRANCH is set."
+      exit 1
+    fi
+
+    if [ -z "$GITHUB_TOKEN" ]; then
+      echo "GITHUB_TOKEN is required when OUTPUT_BRANCH is set."
+      exit 1
+    fi
+
+    # GITHUB_ACTOR and GITHUB_REPOSITORY are set by the github actions runtime
+    # but we do expect them to be set.
+
+    if [ -z "$GITHUB_ACTOR" ]; then
+      echo "GITHUB_ACTOR is required when OUTPUT_BRANCH is set. This is likely a bug in the action. Please reach out to obserIQ support."
+      exit 1
+    fi
+
+    if [ -z "$GITHUB_REPOSITORY" ]; then
+      echo "GITHUB_REPOSITORY is required when OUTPUT_BRANCH is set. This is likely a bug in the action. Please reach out to obserIQ support."
+      exit 1
+    fi
   fi
 
   eval bindplane profile set "action" "$profile_args"
@@ -76,8 +97,10 @@ write_back() {
     git add "$out_file"
   done
 
+  git config --global user.email "bindplane-op-action"
+  git config --global user.name "bindplane-op-action"
   git commit -m "BindPlane OP Action: Update OTEL Configs"
-  git push
+  git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git" "HEAD:$OUTPUT_BRANCH"
 }
 
 install_bindplane_cli
