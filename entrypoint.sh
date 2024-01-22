@@ -83,3 +83,5 @@ validate
 bindplane apply "$DESTINATION_PATH"
 bindplane apply "$CONFIG_PATH"
 write_back
+
+git status
