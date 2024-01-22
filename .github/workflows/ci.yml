@@ -37,8 +37,10 @@ jobs:
           fetch-depth: 0
 
       - name: Detect Runner IP
-        id: ip
-        uses: haythem/public-ip@v1.2
+        run: echo "MAIN_IP=$(ip addr show | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | cut -f1 -d'/')" >> $GITHUB_ENV
+
+      - name: Print Runner IP
+        run: echo $MAIN_IP
 
       - name: Pull BindPlane
         run: docker pull ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
@@ -50,7 +52,7 @@ jobs:
             --name bindplane \
             -e BINDPLANE_USERNAME=admin \
             -e BINDPLANE_PASSWORD=admin \
-            -e BINDPLANE_REMOTE_URL=http://${{ steps.ip.outputs.ipv4 }}:3001 \
+            -e BINDPLANE_REMOTE_URL=http://${MAIN_IP}:3001 \
             -e BINDPLANE_SESSION_SECRET=2c23c9d3-850f-4062-a5c8-3f9b814ae144 \
             -e BINDPLANE_SECRET_KEY=8a5353f7-bbf4-4eea-846d-a6d54296b781 \
             -e BINDPLANE_LOG_OUTPUT=stdout \
@@ -81,7 +83,7 @@ jobs:
           # executes in a container and localhost will always be the container's network
           # and not the network of the bindplane instance, even if that instance
           # is running within this runner.
-          remote_url: http://${{ steps.ip.outputs.ipv4 }}:3001
+          remote_url: http://${{ env.MAIN_IP }}:3001
           username: admin
           password: admin
           # Testing tailing and non trailing slash
