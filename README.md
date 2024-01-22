@@ -12,11 +12,18 @@ bindplane get configuration -o yaml --export > configuration.yaml
 ### Workflow
 
 ```yaml
-name: goreleaser
+name: CI
 
+# When raw config write back is configured, it is important
+# to run this workflow only when changes to the resources
+# are detected. This can prevent a CI infinite loop.
 on:
-  pull_request:
   push:
+    branches:
+      - main
+    paths:
+      - 'test/resources/**'
+
 
 permissions:
   contents: write
