@@ -44,6 +44,8 @@ jobs:
           docker run \
             -d \
             --name bindplane \
+            -e BINDPLANE_HOST=0.0.0.0 \
+            -e BINDPLANE_PORT=3001 \
             -e BINDPLANE_USERNAME=admin \
             -e BINDPLANE_PASSWORD=admin \
             -e BINDPLANE_REMOTE_URL=http://localhost:3001 \
