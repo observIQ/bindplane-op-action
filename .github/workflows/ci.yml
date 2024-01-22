@@ -54,6 +54,15 @@ jobs:
             -p 3001:3001 \
             ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
 
+      - name: Wait for BindPlane
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          polling_interval_seconds: 5
+          max_attempts: 10
+          shell: bash
+          command: docker exec bindplane /bindplane get agent
+
       - name: Run BindPlane Action
         # This should be replaced with a release action.
         # <organization>/<repository>@<tag>
