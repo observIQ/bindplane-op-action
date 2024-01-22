@@ -9,7 +9,7 @@ PASSWORD=$4
 DESTINATION_PATH=$5
 CONFIG_PATH=$6
 OUTPUT_DIR=$7
-OUTPUT_BRANCH=$8
+TARGET_BRANCH=$8
 GITHUB_TOKEN=$9
 
 BRANCH_NAME=${GITHUB_REF#refs/heads/}
@@ -54,14 +54,14 @@ validate() {
     profile_args="$profile_args --api-key $API_KEY"
   fi
 
-  if [ -n "$OUTPUT_BRANCH" ]; then
+  if [ -n "$TARGET_BRANCH" ]; then
     if [ -z "$OUTPUT_DIR" ]; then
-      echo "OUTPUT_DIR is required when OUTPUT_BRANCH is set."
+      echo "OUTPUT_DIR is required when TARGET_BRANCH is set."
       exit 1
     fi
 
     if [ -z "$GITHUB_TOKEN" ]; then
-      echo "GITHUB_TOKEN is required when OUTPUT_BRANCH is set."
+      echo "GITHUB_TOKEN is required when TARGET_BRANCH is set."
       exit 1
     fi
 
@@ -69,12 +69,12 @@ validate() {
     # but we do expect them to be set.
 
     if [ -z "$GITHUB_ACTOR" ]; then
-      echo "GITHUB_ACTOR is required when OUTPUT_BRANCH is set. This is likely a bug in the action. Please reach out to obserIQ support."
+      echo "GITHUB_ACTOR is required when TARGET_BRANCH is set. This is likely a bug in the action. Please reach out to obserIQ support."
       exit 1
     fi
 
     if [ -z "$GITHUB_REPOSITORY" ]; then
-      echo "GITHUB_REPOSITORY is required when OUTPUT_BRANCH is set. This is likely a bug in the action. Please reach out to obserIQ support."
+      echo "GITHUB_REPOSITORY is required when TARGET_BRANCH is set. This is likely a bug in the action. Please reach out to obserIQ support."
       exit 1
     fi
   fi
@@ -84,11 +84,6 @@ validate() {
 }
 
 write_back() {
-  if [ "$BRANCH_NAME" != "$OUTPUT_BRANCH" ]; then
-    echo "Skipping repo write. Current branch ${BRANCH_NAME} does not match output branch ${OUTPUT_BRANCH}."
-    return
-  fi
-
   # Clone the repo on the current branch
   # and use depth 1 to avoid cloning the entire history.
   git clone \
@@ -121,10 +116,13 @@ write_back() {
 
 install_bindplane_cli
 validate
-# Apply will apply resources in the correct order. Re-usable
-# resources must exist before they can be referenced by
-# a configuration.
-bindplane apply "$DESTINATION_PATH"
-bindplane apply "$CONFIG_PATH"
-write_back
+
+if [ "$BRANCH_NAME" != "$TARGET_BRANCH" ]; then
+  echo "Skipping apply and repo write. Current branch ${BRANCH_NAME} does not match target branch ${TARGET_BRANCH}."
+else
+  bindplane apply "$DESTINATION_PATH"
+  bindplane apply "$CONFIG_PATH"
+  write_back
+fi
+
 

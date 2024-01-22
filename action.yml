@@ -18,8 +18,8 @@ inputs:
     description: 'Path to the file which contains the BindPlane configuration resources'
   configuration_output_dir:
     description: 'Path to the directory which will contain the rendered OTEL format of the configuration resources'
-  configuration_output_branch:
-    description: 'The branch to commit the rendered OTEL format of the configuration resources to. This branch must also be the branch the action is running on'
+  target_branch:
+    description: 'Resource apply and OTEL config write back will only happen when this branch is the current branch of the action'
   token:
     description: 'The GitHub token used to authenticate to GitHub when writing OTEL configs back to the repo'
 
@@ -34,5 +34,5 @@ runs:
     - ${{ inputs.destination_path }}
     - ${{ inputs.configuration_path }}
     - ${{ inputs.configuration_output_dir }}
-    - ${{ inputs.configuration_output_branch }}
+    - ${{ inputs.target_branch }}
     - ${{ inputs.token }}

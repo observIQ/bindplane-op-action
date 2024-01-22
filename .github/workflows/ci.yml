@@ -96,11 +96,10 @@ jobs:
           remote_url: http://${{ env.MAIN_IP }}:3001
           username: admin
           password: admin
-          # Testing tailing and non trailing slash
           destination_path: test/resources/destinations/resource.yaml
           configuration_path: test/resources/configurations/resource.yaml
           configuration_output_dir: test/otel/${{ matrix.bindplane_versions }}
-          configuration_output_branch: dev
+          target_branch: dev
           # Token should have contents: write permissions
           token: ${{ secrets.GITHUB_TOKEN }}
 
