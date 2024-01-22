@@ -8,7 +8,7 @@ USERNAME=$3
 PASSWORD=$4
 DESTINATION_PATH=$5
 CONFIG_PATH=$6
-OUTPUT_PATH=$7
+OUTPUT_DIR=$7
 OUTPUT_BRANCH=$8
 
 BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
@@ -51,28 +51,33 @@ validate() {
     exit 1
   elif [ -n "$API_KEY" ]; then
     profile_args="$profile_args --api-key $API_KEY"
-  fi  
+  fi
+
+  if [ -n "$OUTPUT_BRANCH" ] && [ -z "$OUTPUT_DIR" ]; then
+    echo "OUTPUT_DIR is required when OUTPUT_BRANCH is set."
+    exit 1
+  fi
 
   eval bindplane profile set "action" "$profile_args"
   bindplane profile use "action"
 }
 
 write_back() {
-  # If output branch matches current branch, write back to repo
-  if [ "$BRANCH_NAME" == "$OUTPUT_BRANCH" ]; then
-    echo "Writing back to repo"
-    # TODO, move logic here
-  else
+  if [ "$BRANCH_NAME" != "$OUTPUT_BRANCH" ]; then
     echo "Skipping repo write. Current branch ${BRANCH_NAME} does not match output branch ${OUTPUT_BRANCH}."
+    return
   fi
 
-  # TODO handle output path dir checks
+  mkdir -p "$OUTPUT_DIR"
 
-  mkdir tmp
   for config in $(bindplane get config | awk 'NR>1 {print $1}'); do
-    bindplane get config "$config" -o raw > "tmp/$config.yaml"
+    out_file="$OUTPUT_DIR/$config.yaml"
+    bindplane get config "$config" -o raw > "$out_file"
+    git add "$out_file"
   done
-  ls tmp
+
+  git commit -m "BindPlane OP Action: Update OTEL Configs"
+  git push
 }
 
 install_bindplane_cli
@@ -84,4 +89,3 @@ bindplane apply "$DESTINATION_PATH"
 bindplane apply "$CONFIG_PATH"
 write_back
 
-git status
