@@ -68,15 +68,10 @@ apply_generic_path() {
   fi
 }
 
+install_bindplane_cli
+validate
 # Apply will apply resources in the correct order. Re-usable
 # resources must exist before they can be referenced by
 # a configuration.
-apply() {
-  apply_generic_path "$DESTINATION_PATH"
-  apply_generic_path "$CONFIG_PATH"
-}
-
-install_bindplane_cli
-validate
-provile
-apply
+apply_generic_path "$DESTINATION_PATH"
+apply_generic_path "$CONFIG_PATH"
