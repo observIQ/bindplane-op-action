@@ -9,6 +9,16 @@ PASSWORD=$4
 DESTINATION_PATH=$5
 CONFIG_PATH=$6
 
+install_bindplane_cli() {
+  curl -Ls \
+    -o bindplane.zip \
+    https://storage.googleapis.com/bindplane-op-releases/bindplane/latest/bindplane-ee-linux-amd64.zip
+
+  unzip bindplane.zip
+
+  ./bindplane --help > /dev/null
+}
+
 # Validate will ensure that all required variables are set
 # and generates the bindplane profile.
 validate() {
@@ -63,6 +73,7 @@ apply() {
   apply_generic_path "$CONFIG_PATH"
 }
 
+install_bindplane_cli
 validate
 provile
 apply
