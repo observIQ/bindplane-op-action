@@ -44,7 +44,7 @@ validate() {
     echo "bindplane_password is required when bindplane_username is not set."
     exit 1
   else 
-    profile_args="$profile_args --bindplane_username $bindplane_username --bindplane_password $bindplane_password"
+    profile_args="$profile_args --username $bindplane_username --password $bindplane_password"
   fi
 
   if [ -z "$bindplane_username" ] && [ -z "$bindplane_api_key" ]; then
