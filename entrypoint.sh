@@ -2,15 +2,15 @@
 
 set -e
 
-REMOTE_URL=$1
-API_KEY=$2
-USERNAME=$3
-PASSWORD=$4
-DESTINATION_PATH=$5
-CONFIG_PATH=$6
-OUTPUT_DIR=$7
-TARGET_BRANCH=$8
-GITHUB_TOKEN=$9
+bindplane_remote_url=$1
+bindplane_api_key=$2
+bindplane_username=$3
+bindplane_password=$4
+destination_path=$5
+configuration_path=$6
+configuration_output_dir=$7
+target_branch=$8
+token=$9
 
 BRANCH_NAME=${GITHUB_REF#refs/heads/}
 echo "Current branch is $BRANCH_NAME"
@@ -33,35 +33,35 @@ install_bindplane_cli() {
 validate() {
   profile_args=""
 
-  if [ -z "$REMOTE_URL" ]; then
-    echo "REMOTE_URL is not set."
+  if [ -z "$bindplane_remote_url" ]; then
+    echo "bindplane_remote_url is not set."
     exit 1
   else 
-    profile_args="$profile_args --remote-url $REMOTE_URL"
+    profile_args="$profile_args --remote-url $bindplane_remote_url"
   fi
 
-  if [ -n "$USERNAME" ] && [ -z "$PASSWORD" ]; then
-    echo "password is required when username is not set."
+  if [ -n "$bindplane_username" ] && [ -z "$bindplane_password" ]; then
+    echo "bindplane_password is required when bindplane_username is not set."
     exit 1
   else 
-    profile_args="$profile_args --username $USERNAME --password $PASSWORD"
+    profile_args="$profile_args --bindplane_username $bindplane_username --bindplane_password $bindplane_password"
   fi
 
-  if [ -z "$USERNAME" ] && [ -z "$API_KEY" ]; then
-    echo "api key is required when username is not set."
+  if [ -z "$bindplane_username" ] && [ -z "$bindplane_api_key" ]; then
+    echo "api key is required when bindplane_username is not set."
     exit 1
-  elif [ -n "$API_KEY" ]; then
-    profile_args="$profile_args --api-key $API_KEY"
+  elif [ -n "$bindplane_api_key" ]; then
+    profile_args="$profile_args --api-key $bindplane_api_key"
   fi
 
-  if [ -n "$TARGET_BRANCH" ]; then
-    if [ -z "$OUTPUT_DIR" ]; then
-      echo "OUTPUT_DIR is required when TARGET_BRANCH is set."
+  if [ -n "$target_branch" ]; then
+    if [ -z "$configuration_output_dir" ]; then
+      echo "configuration_output_dir is required when target_branch is set."
       exit 1
     fi
 
-    if [ -z "$GITHUB_TOKEN" ]; then
-      echo "GITHUB_TOKEN is required when TARGET_BRANCH is set."
+    if [ -z "$token" ]; then
+      echo "token is required when target_branch is set."
       exit 1
     fi
 
@@ -69,12 +69,12 @@ validate() {
     # but we do expect them to be set.
 
     if [ -z "$GITHUB_ACTOR" ]; then
-      echo "GITHUB_ACTOR is required when TARGET_BRANCH is set. This is likely a bug in the action. Please reach out to obserIQ support."
+      echo "GITHUB_ACTOR is required when target_branch is set. This is likely a bug in the action. Please reach out to obserIQ support."
       exit 1
     fi
 
     if [ -z "$GITHUB_REPOSITORY" ]; then
-      echo "GITHUB_REPOSITORY is required when TARGET_BRANCH is set. This is likely a bug in the action. Please reach out to obserIQ support."
+      echo "GITHUB_REPOSITORY is required when target_branch is set. This is likely a bug in the action. Please reach out to obserIQ support."
       exit 1
     fi
   fi
@@ -89,15 +89,15 @@ write_back() {
   git clone \
     --depth 1 \
     --branch "$BRANCH_NAME" \
-    "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+    "https://${GITHUB_ACTOR}:${token}@github.com/${GITHUB_REPOSITORY}.git" \
     ../out_repo
 
   cd "../out_repo"
 
-  mkdir -p "$OUTPUT_DIR"
+  mkdir -p "$configuration_output_dir"
 
   for config in $(bindplane get config | awk 'NR>1 {print $1}'); do
-    out_file="$OUTPUT_DIR/$config.yaml"
+    out_file="$configuration_output_dir/$config.yaml"
     bindplane get config "$config" -o raw > "$out_file"
     git add "$out_file"
   done
@@ -117,11 +117,11 @@ write_back() {
 install_bindplane_cli
 validate
 
-if [ "$BRANCH_NAME" != "$TARGET_BRANCH" ]; then
-  echo "Skipping apply and repo write. Current branch ${BRANCH_NAME} does not match target branch ${TARGET_BRANCH}."
+if [ "$BRANCH_NAME" != "$target_branch" ]; then
+  echo "Skipping apply and repo write. Current branch ${BRANCH_NAME} does not match target branch ${target_branch}."
 else
-  bindplane apply "$DESTINATION_PATH"
-  bindplane apply "$CONFIG_PATH"
+  bindplane apply "$destination_path"
+  bindplane apply "$configuration_path"
   write_back
 fi
 

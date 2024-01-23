@@ -87,15 +87,15 @@ jobs:
           # These values are hardcode to match the test instance used by
           # this workflow. The instance does not persist. Consumers of 
           # this action should always use secrets when passing in the remote
-          # url, username, password or api key.
+          # url, bindplane_username, bindplane_password or api key.
           #
           # Remote url will never be localhost when running this action. The action
           # executes in a container and localhost will always be the container's network
           # and not the network of the bindplane instance, even if that instance
           # is running within this runner.
-          remote_url: http://${{ env.MAIN_IP }}:3001
-          username: admin
-          password: admin
+          bindplane_remote_url: http://${{ env.MAIN_IP }}:3001
+          bindplane_username: admin
+          bindplane_password: admin
           destination_path: test/resources/destinations/resource.yaml
           configuration_path: test/resources/configurations/resource.yaml
           configuration_output_dir: test/otel/${{ matrix.bindplane_versions }}

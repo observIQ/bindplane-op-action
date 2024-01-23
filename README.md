@@ -41,10 +41,10 @@ jobs:
 
       - uses: observIQ/bindplane-op-action@main
         with:
-          remote_url: ${{ secrets.BINDPLANE_REMOTE_URL }}
-          username: ${{ secrets.BINDPLANE_USERNAME }}
-          password: ${{ secrets.BINDPLANE_PASSWORD }}
-          api_key: "" # Optional replacement for username and password
+          bindplane_remote_url: ${{ secrets.BINDPLANE_REMOTE_URL }}
+          bindplane_username: ${{ secrets.BINDPLANE_USERNAME }}
+          bindplane_password: ${{ secrets.BINDPLANE_PASSWORD }}
+          bindplane_api_key: "" # Optional replacement for bindplane_username and bindplane_password
           destination_path: test/resources/destinations/resource.yaml
           configuration_path: test/resources/configurations/resource.yaml
           # Write back requires these three options

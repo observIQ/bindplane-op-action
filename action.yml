@@ -3,23 +3,42 @@ description: 'GitHub Action for BindPlane OP.'
 author: 'observIQ'
 
 inputs:
-  remote_url:
+  # BindPlane configuration will be used to interact with the BindPlane OP's API
+  # using the BindPlane CLI bundled with the action.
+  bindplane_remote_url:
     description: 'The URL that will be used to connect to BindPlane OP'
     required: true
-  api_key:
+  bindplane_api_key:
     description: 'The BindPlane OP API key that will be used to authenticate to BindPlane OP'
-  username:
-    description: 'The BindPlane OP username that will be used to authenticate to BindPlane OP'
-  password:
-    description: 'The BindPlane OP password that will be used to authenticate to BindPlane OP'
+  bindplane_username:
+    description: 'The BindPlane OP bindplane_username that will be used to authenticate to BindPlane OP'
+  bindplane_password:
+    description: 'The BindPlane OP bindplane_password that will be used to authenticate to BindPlane OP'
+
+  # This path should be a file that contains a BindPlane destination resource(s).
   destination_path:
     description: 'Path to the file which contains the BindPlane destination resources'
+
+  # This path should be a file that contains a BindPlane configuration resource(s).
   configuration_path:
     description: 'Path to the file which contains the BindPlane configuration resources'
+
+  # Raw OTEL config write back to the repo is
+  # configured with the following inputs.
+
+  # This directory is the output directory that will be used when writing the raw OTEL configurations
+  # back to the repo.
   configuration_output_dir:
     description: 'Path to the directory which will contain the rendered OTEL format of the configuration resources'
+
+  # This is the branch the action should be running against. When running against this branch, repo write
+  # back will be triggered. Configurations are commited directly to this branch.
   target_branch:
     description: 'Resource apply and OTEL config write back will only happen when this branch is the current branch of the action'
+
+  # This is the Github token that will be used to authenticate to Github when writing OTEL configs back to the repo.
+  # This is generally passed in with the workflows secrets.GITHUB_TOKEN. It requires that the workflow have the
+  # contents.write permission configured.
   token:
     description: 'The GitHub token used to authenticate to GitHub when writing OTEL configs back to the repo'
 
@@ -27,10 +46,10 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ inputs.remote_url }}
-    - ${{ inputs.api_key }}
-    - ${{ inputs.username }}
-    - ${{ inputs.password }}
+    - ${{ inputs.bindplane_remote_url }}
+    - ${{ inputs.bindplane_api_key }}
+    - ${{ inputs.bindplane_username }}
+    - ${{ inputs.bindplane_password }}
     - ${{ inputs.destination_path }}
     - ${{ inputs.configuration_path }}
     - ${{ inputs.configuration_output_dir }}
