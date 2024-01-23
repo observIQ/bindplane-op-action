@@ -2,6 +2,7 @@
 
 set -e
 
+# This order must match the order in acitons.yml
 bindplane_remote_url=${1}
 bindplane_api_key=${2}
 bindplane_username=${3}
@@ -13,6 +14,8 @@ enable_otel_config_write_back=${8}
 configuration_output_dir=${9}
 token=${10}
 
+# This branch name will be compared to target_branch to determine if the action
+# should apply or write back configurations.
 BRANCH_NAME=${GITHUB_REF#refs/heads/}
 echo "Current branch is $BRANCH_NAME"
 
@@ -41,7 +44,6 @@ validate() {
     echo "target_branch is required when enable_otel_config_write_back is true."
     exit 1
   fi
-
 
   if [ -z "$bindplane_remote_url" ]; then
     echo "bindplane_remote_url is not set."
@@ -126,19 +128,31 @@ write_back() {
   git push
 }
 
-install_bindplane_cli
-validate
+main() {
+  # Short circuit if the current branch does not match the target branch,
+  # there is nothing to do.
+  if [ "$BRANCH_NAME" != "$target_branch" ]; then
+    echo "Skipping apply and repo write. Current branch ${BRANCH_NAME} does not match target branch ${target_branch}."
+    exit 0
+  fi
 
-if [ "$BRANCH_NAME" != "$target_branch" ]; then
-  echo "Skipping apply and repo write. Current branch ${BRANCH_NAME} does not match target branch ${target_branch}."
-else
+  # Install the CLI right away in order to construct
+  # a client profile.
+  install_bindplane_cli
+
+  # Ensure required options are set and configure
+  # the client profile.
+  validate
+
+  # Apply resources in the correct order.
   bindplane apply "$destination_path"
   bindplane apply "$configuration_path"
 
-  # call write_back when enable_otel_config_write_back is true
+  # When write back is enabled, write the raw otel configs
+  # back to the repository.
   if [ "$enable_otel_config_write_back" = true ]; then
     write_back
   fi
-fi
+}
 
-
+main
