@@ -2,15 +2,16 @@
 
 set -e
 
-bindplane_remote_url=$1
-bindplane_api_key=$2
-bindplane_username=$3
-bindplane_password=$4
-destination_path=$5
-configuration_path=$6
-configuration_output_dir=$7
-target_branch=$8
-token=$9
+bindplane_remote_url=${1}
+bindplane_api_key=${2}
+bindplane_username=${3}
+bindplane_password=${4}
+target_branch=${5}
+destination_path=${6}
+configuration_path=${7}
+enable_otel_config_write_back=${8}
+configuration_output_dir=${9}
+token=${10}
 
 BRANCH_NAME=${GITHUB_REF#refs/heads/}
 echo "Current branch is $BRANCH_NAME"
@@ -33,6 +34,15 @@ install_bindplane_cli() {
 validate() {
   profile_args=""
 
+  # Target branch is always required. When not set, the script will not
+  # know which branch it should apply configurations from or write back
+  # raw otel configs.
+  if [ -z "$target_branch" ]; then
+    echo "target_branch is required when enable_otel_config_write_back is true."
+    exit 1
+  fi
+
+
   if [ -z "$bindplane_remote_url" ]; then
     echo "bindplane_remote_url is not set."
     exit 1
@@ -54,7 +64,9 @@ validate() {
     profile_args="$profile_args --api-key $bindplane_api_key"
   fi
 
-  if [ -n "$target_branch" ]; then
+  # configuration_output_dir, target_branch, and token are only required
+  # when enable_otel_config_write_back is true.
+  if [ "$enable_otel_config_write_back" = true ]; then
     if [ -z "$configuration_output_dir" ]; then
       echo "configuration_output_dir is required when target_branch is set."
       exit 1
@@ -122,7 +134,11 @@ if [ "$BRANCH_NAME" != "$target_branch" ]; then
 else
   bindplane apply "$destination_path"
   bindplane apply "$configuration_path"
-  write_back
+
+  # call write_back when enable_otel_config_write_back is true
+  if [ "$enable_otel_config_write_back" = true ]; then
+    write_back
+  fi
 fi
 
 

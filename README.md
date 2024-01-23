@@ -44,10 +44,13 @@ jobs:
           bindplane_remote_url: ${{ secrets.BINDPLANE_REMOTE_URL }}
           bindplane_username: ${{ secrets.BINDPLANE_USERNAME }}
           bindplane_password: ${{ secrets.BINDPLANE_PASSWORD }}
-          bindplane_api_key: "" # Optional replacement for bindplane_username and bindplane_password
+          bindplane_api_key: "" # Optional replacement for username and password
+
           destination_path: test/resources/destinations/resource.yaml
           configuration_path: test/resources/configurations/resource.yaml
-          # Write back requires these three options
+
+          # Write raw OTEL configs back to the repo.
+          enable_otel_config_write_back: true
           configuration_output_dir: test/otel/${{ matrix.bindplane_versions }}
           configuration_output_branch: dev
           token: ${{ secrets.GITHUB_TOKEN }}
