@@ -61,7 +61,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  goreleaser:
+  bindplane:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
