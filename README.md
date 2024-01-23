@@ -1,3 +1,5 @@
+[![CI](https://github.com/observIQ/bindplane-op-action/actions/workflows/ci.yml/badge.svg)](https://github.com/observIQ/bindplane-op-action/actions/workflows/ci.yml)
+
 # bindplane-op-action
 
 The BindPlane OP action can be used to deploy configurations to your BindPlane OP
