@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - auto-rollout
 
 permissions:
   # Allow action to write raw configs back to the repository.
@@ -99,7 +100,7 @@ jobs:
           destination_path: test/resources/destinations/resource.yaml
           configuration_path: test/resources/configurations/resource.yaml
           configuration_output_dir: test/otel/${{ matrix.bindplane_versions }}
-          target_branch: dev
+          target_branch: auto-rollout # TODO this should be main
           # Token should have contents: write permissions
           token: ${{ secrets.GITHUB_TOKEN }}
           enable_otel_config_write_back: true
