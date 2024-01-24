@@ -13,6 +13,7 @@ configuration_path=${7}
 enable_otel_config_write_back=${8}
 configuration_output_dir=${9}
 token=${10}
+enable_auto_rollout=${11}
 
 # This branch name will be compared to target_branch to determine if the action
 # should apply or write back configurations.
@@ -157,7 +158,13 @@ main() {
   bindplane apply "$destination_path"
 
   echo "Applying configuration path: $configuration_path"
-  bindplane apply "$configuration_path"
+  bindplane apply "$configuration_path" > configuration.out
+
+  # When auto rollout is enabled
+  if [ "$enable_auto_rollout" = true ]; then
+    echo "Auto rollout enabled."
+    cat configuration.out
+  fi
 
   # When write back is enabled, write the raw otel configs
   # back to the repository.
