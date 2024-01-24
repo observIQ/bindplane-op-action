@@ -167,9 +167,13 @@ main() {
     awk '{print $2}' < configuration.out | while IFS= read -r config
     do
       status=$(bindplane rollout status "${config}" -o json | jq .status)
+      # TODO(jsirianni): Use switch case and check for all status codes, before
+      # merging this PR. Just need to look up the mapping.
       if [ "$status" = 0 ]; then
         echo "Configuration ${config} has a pending rollout, triggering rollout."
         bindplane rollout start "$config"
+      elif [ "$status" = 4 ]; then
+        echo "Configuration ${config} is stable, skipping rollout."
       fi
     done
   fi
