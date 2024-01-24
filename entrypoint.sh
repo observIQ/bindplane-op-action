@@ -159,11 +159,11 @@ main() {
 
   echo "Applying configuration path: $configuration_path"
   bindplane apply "$configuration_path" > configuration.out
+  cat configuration.out
 
   # When auto rollout is enabled
   if [ "$enable_auto_rollout" = true ]; then
     echo "Auto rollout enabled."
-    cat configuration.out
   fi
 
   # When write back is enabled, write the raw otel configs
