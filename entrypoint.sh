@@ -138,23 +138,35 @@ main() {
     exit 0
   fi
 
+  echo "Target branch ${target_branch} matches current branch ${BRANCH_NAME}."
+
   # Install the CLI right away in order to construct
   # a client profile.
+  echo "Installing bindplane CLI."
   install_bindplane_cli
 
   # Ensure required options are set and configure
   # the client profile.
+  echo "Validating options and configuring client profile."
   validate
 
   # Apply resources in the correct order.
+  echo "Applying resources."
+
+  echo "Applying destination path: $destination_path"
   bindplane apply "$destination_path"
+
+  echo "Applying configuration path: $configuration_path"
   bindplane apply "$configuration_path"
 
   # When write back is enabled, write the raw otel configs
   # back to the repository.
   if [ "$enable_otel_config_write_back" = true ]; then
+    echo "Writing back raw otel configs."
     write_back
   fi
+
+  echo "Done."
 }
 
 main
