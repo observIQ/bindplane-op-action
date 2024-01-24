@@ -164,7 +164,8 @@ main() {
   # When auto rollout is enabled
   if [ "$enable_auto_rollout" = true ]; then
     echo "Auto rollout enabled."
-    for config in $(cat configuration.out | awk '{print $2}'); do
+    awk '{print $2}' < configuration.out | while IFS= read -r config
+    do
       status=$(bindplane rollout status "${config}" -o json | jq .status)
       if [ "$status" = 0 ]; then
         echo "Configuration ${config} has a pending rollout, triggering rollout."
