@@ -164,6 +164,10 @@ main() {
   # When auto rollout is enabled
   if [ "$enable_auto_rollout" = true ]; then
     echo "Auto rollout enabled."
+    for config in $(cat configuration.out | awk '{print $2}'); do
+      bindplane rollout status "$config"
+      #| grep Pending
+    done
   fi
 
   # When write back is enabled, write the raw otel configs
