@@ -27,7 +27,7 @@ install_bindplane_cli() {
   mkdir -p ~/bin
   export PATH=$PATH:~/bin
 
-  unzip bindplane.zip -d ~/bin
+  unzip bindplane.zip -d ~/bin > /dev/null
 
   bindplane --help > /dev/null
 }
