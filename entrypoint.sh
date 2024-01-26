@@ -112,9 +112,9 @@ write_back() {
 
   for config in $(bindplane get config | awk 'NR>1 {print $1}'); do
     out_file="$configuration_output_dir/$config.yaml"
-    # It is safe to always ask for "pending". BindPlane will return
-    # the current version if there is no pending version.
-    bindplane get config "${config}:pending" -o raw > "$out_file"
+    # It is safe to always ask for "latest". BindPlane will return
+    # the current version if there is no latest version.
+    bindplane get config "${config}:latest" -o raw > "$out_file"
     git add "$out_file"
   done
 
