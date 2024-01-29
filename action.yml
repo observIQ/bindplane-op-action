@@ -25,6 +25,9 @@ inputs:
     description: 'Path to the directory which will contain the rendered OTEL format of the configuration resources'
   token:
     description: 'The GitHub token used to authenticate to GitHub when writing OTEL configs back to the repo'
+  enable_auto_rollout:
+    description: 'When enabled, the action will trigger a rollout for all configurations that have been updated'
+    default: false
 
 runs:
   using: 'docker'
@@ -42,3 +45,4 @@ runs:
     - ${{ inputs.enable_otel_config_write_back }}
     - ${{ inputs.configuration_output_dir }}
     - ${{ inputs.token }}
+    - ${{ inputs.enable_auto_rollout }}

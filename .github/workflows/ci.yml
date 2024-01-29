@@ -103,6 +103,7 @@ jobs:
           # Token should have contents: write permissions
           token: ${{ secrets.GITHUB_TOKEN }}
           enable_otel_config_write_back: true
+          enable_auto_rollout: true
 
       - name: Get Resources
         if: always()

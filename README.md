@@ -19,6 +19,7 @@ server. It also supports exporting the OpenTelemetry configurations back to the 
 | enable_otel_config_write_back | `false`    | Whether or not the action should write the raw OpenTelemetry configurations back to the repository. | 
 | configuration_output_dir      |            | When write back is enabled, this is the path that will be written to. |
 | token                         |            | The Github token that will be used to write to the repo. Usually secrets.GITHUB_TOKEN is sufficient. Requires the `contents.write` permission. |
+| enable_auto_rollout           | `false`    | When enabled, the action will trigger a rollout for any configuration that has been updated. |
 
 ## Usage
 
@@ -80,6 +81,7 @@ jobs:
           enable_otel_config_write_back: true
           configuration_output_dir: otel/
           token: ${{ secrets.GITHUB_TOKEN }}
+          enable_auto_rollout: true
 ```
 
 After the action is executed, you can expect to see OTEL configurations
