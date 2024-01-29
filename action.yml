@@ -1,0 +1,48 @@
+name: 'BindPlane OP Action'
+description: 'GitHub Action for BindPlane OP.'
+author: 'observIQ'
+
+inputs:
+  bindplane_remote_url:
+    description: 'The URL that will be used to connect to BindPlane OP'
+    required: true
+  bindplane_api_key:
+    description: 'The BindPlane OP API key that will be used to authenticate to BindPlane OP'
+  bindplane_username:
+    description: 'The BindPlane OP bindplane_username that will be used to authenticate to BindPlane OP'
+  bindplane_password:
+    description: 'The BindPlane OP bindplane_password that will be used to authenticate to BindPlane OP'
+  target_branch:
+    description: 'Resource apply and OTEL config write back will only happen when this branch is the current branch of the action'
+  destination_path:
+    description: 'Path to the file which contains the BindPlane destination resources'
+  configuration_path:
+    description: 'Path to the file which contains the BindPlane configuration resources'
+  enable_otel_config_write_back:
+    description: 'Enable OTEL raw config write back'
+    default: false
+  configuration_output_dir:
+    description: 'Path to the directory which will contain the rendered OTEL format of the configuration resources'
+  token:
+    description: 'The GitHub token used to authenticate to GitHub when writing OTEL configs back to the repo'
+  enable_auto_rollout:
+    description: 'When enabled, the action will trigger a rollout for all configurations that have been updated'
+    default: false
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  # Arg order must match the order of the arg parsing
+  # in entrypoint.sh.
+  args:
+    - ${{ inputs.bindplane_remote_url }}
+    - ${{ inputs.bindplane_api_key }}
+    - ${{ inputs.bindplane_username }}
+    - ${{ inputs.bindplane_password }}
+    - ${{ inputs.target_branch }}
+    - ${{ inputs.destination_path }}
+    - ${{ inputs.configuration_path }}
+    - ${{ inputs.enable_otel_config_write_back }}
+    - ${{ inputs.configuration_output_dir }}
+    - ${{ inputs.token }}
+    - ${{ inputs.enable_auto_rollout }}
