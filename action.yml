@@ -23,6 +23,8 @@ inputs:
     default: false
   configuration_output_dir:
     description: 'Path to the directory which will contain the rendered OTEL format of the configuration resources'
+  configuration_output_branch:
+    description: 'The branch to write the OTEL configuration resources to. If unset, target_branch will be used'
   token:
     description: 'The GitHub token used to authenticate to GitHub when writing OTEL configs back to the repo'
   enable_auto_rollout:
@@ -46,3 +48,4 @@ runs:
     - ${{ inputs.configuration_output_dir }}
     - ${{ inputs.token }}
     - ${{ inputs.enable_auto_rollout }}
+    - ${{ inputs.configuration_output_branch }}

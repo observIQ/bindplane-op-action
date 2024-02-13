@@ -14,6 +14,7 @@ enable_otel_config_write_back=${8}
 configuration_output_dir=${9}
 token=${10}
 enable_auto_rollout=${11}
+configuration_output_branch=${12}
 
 # This branch name will be compared to target_branch to determine if the action
 # should apply or write back configurations.
@@ -99,11 +100,15 @@ validate() {
 }
 
 write_back() {
+  # The configuration_output_branch is optional. If not set, the
+  # write back branch will be the same as the target branch.
+  write_back_branch=${configuration_output_branch:-$target_branch}
+
   # Clone the repo on the current branch
   # and use depth 1 to avoid cloning the entire history.
   git clone \
     --depth 1 \
-    --branch "$BRANCH_NAME" \
+    --branch "$write_back_branch" \
     "https://${GITHUB_ACTOR}:${token}@github.com/${GITHUB_REPOSITORY}.git" \
     ../out_repo
 
