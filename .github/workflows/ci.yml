@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - dev
 
 permissions:
   # Allow action to write raw configs back to the repository.
@@ -39,7 +38,6 @@ jobs:
         # on the bindplane version.
         bindplane_versions:
           - 1.40.0
-          - 1.37.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
