@@ -18,6 +18,7 @@ server. It also supports exporting the OpenTelemetry configurations back to the 
 | configuration_path            |            | Path to the file which contains the BindPlane configuration resources |
 | enable_otel_config_write_back | `false`    | Whether or not the action should write the raw OpenTelemetry configurations back to the repository. | 
 | configuration_output_dir      |            | When write back is enabled, this is the path that will be written to. |
+| configuration_output_branch   |            | The branch to write the OTEL configuration resources to. If unset, target_branch will be used. |
 | token                         |            | The Github token that will be used to write to the repo. Usually secrets.GITHUB_TOKEN is sufficient. Requires the `contents.write` permission. |
 | enable_auto_rollout           | `false`    | When enabled, the action will trigger a rollout for any configuration that has been updated. |
 
@@ -42,7 +43,7 @@ The following workflow can be used as an example. It uses the same file paths
 created in the [Export Resources](#export-resources) section.
 
 This example will write the raw OTEL configurations back to the repository at the
-path `otel/`
+path `otel/` in branch `configuration_output_branch`.
 
 ```yaml
 name: bindplane
@@ -80,12 +81,13 @@ jobs:
           configuration_path: configuration.yaml
           enable_otel_config_write_back: true
           configuration_output_dir: otel/
+          configuration_output_branch: otel
           token: ${{ secrets.GITHUB_TOKEN }}
           enable_auto_rollout: true
 ```
 
 After the action is executed, you can expect to see OTEL configurations
-in the `otel/` directory.
+in the `otel/` directory of branch `configuration_output_branch`.
 
 ```
 otel
