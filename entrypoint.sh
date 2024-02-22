@@ -15,6 +15,7 @@ configuration_output_dir=${9}
 token=${10}
 enable_auto_rollout=${11}
 configuration_output_branch=${12}
+tls_ca_cert=${13}
 
 # This branch name will be compared to target_branch to determine if the action
 # should apply or write back configurations.
@@ -66,6 +67,16 @@ validate() {
     exit 1
   elif [ -n "$bindplane_api_key" ]; then
     profile_args="$profile_args --api-key $bindplane_api_key"
+  fi
+
+  if [ -n "$tls_ca_cert" ]; then
+    echo "tls_ca_cert is set, adding to profile."
+    echo "$tls_ca_cert" > ca.pem
+    # TODO(jsirianni): This is not yet supported in the bindplane CLI, using
+    # environment variable instead. A ticket has been made, and this will be
+    # updated when the CLI supports it.
+    # profile_args="$profile_args --tls-ca-cert ca.pem"
+    export BINDPLANE_TLS_CA=ca.pem
   fi
 
   # configuration_output_dir, target_branch, and token are only required

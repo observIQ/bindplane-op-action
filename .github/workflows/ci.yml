@@ -50,6 +50,33 @@ jobs:
       - name: Print Runner IP
         run: echo $MAIN_IP
 
+      - name: Install step cli
+        run: |
+          wget https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_amd64.deb
+          sudo apt-get install -y -f ./step-cli_amd64.deb
+
+      - name: Create CA certificate
+        run: |
+          mkdir tls
+          step certificate create \
+            ca.internal \
+            tls/ca.crt tls/ca.key \
+            --profile root-ca \
+            --no-password \
+            --insecure \
+            --not-after=8760h
+
+     - name: Create BindPlane certificate
+        run: |
+          step certificate create \
+            bindplane.internal \
+            tls/bindplane.crt tls/bindplane.key \
+            --ca tls/ca.crt tls/ca.key \
+            --profile leaf \
+            --no-password \
+            --insecure \
+            --not-after=8760h
+
       - name: Pull BindPlane
         run: docker pull ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
 
@@ -60,11 +87,13 @@ jobs:
             --name bindplane \
             -e BINDPLANE_USERNAME=admin \
             -e BINDPLANE_PASSWORD=admin \
-            -e BINDPLANE_REMOTE_URL=http://${MAIN_IP}:3001 \
+            -e BINDPLANE_REMOTE_URL=https://${MAIN_IP}:3001 \
             -e BINDPLANE_SESSION_SECRET=2c23c9d3-850f-4062-a5c8-3f9b814ae144 \
             -e BINDPLANE_SECRET_KEY=8a5353f7-bbf4-4eea-846d-a6d54296b781 \
             -e BINDPLANE_LOG_OUTPUT=stdout \
             -e BINDPLANE_ACCEPT_EULA=true \
+            -e BINDPLANE_TLS_CERT=/tls/bindplane.crt \
+            -e BINDPLANE_TLS_KEY=/tls/bindplane.key \
             -p 3001:3001 \
             ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
 
@@ -103,6 +132,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           enable_otel_config_write_back: true
           enable_auto_rollout: true
+          # Generally this would come from a secret, but the certificate
+          # was created in this workflow.
+          tls_ca_cert: ${{ env.TLS_CA_CERT }}
 
       - name: Get Resources
         if: always()
