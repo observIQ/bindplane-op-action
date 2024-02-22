@@ -37,7 +37,6 @@ jobs:
         # When writing back to the repo, we write to directories based
         # on the bindplane version.
         bindplane_versions:
-          - 1.40.0
           - 1.45.0
     steps:
       - name: Checkout
