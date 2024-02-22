@@ -2,8 +2,10 @@
 
 set -e
 
-wget https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_amd64.deb
-sudo apt-get install -y -f ./step-cli_amd64.deb
+curl -L -s -o step.tar.gz \
+    https://dl.step.sm/gh-release/cli/gh-release-header/v0.22.0/step_linux_0.22.0_amd64.tar.gz
+tar -xzf step.tar.gz
+mv step_0.22.0/bin/step /usr/local/bin/step
 
 mkdir /tmp/step
 
