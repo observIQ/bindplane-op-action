@@ -11,6 +11,8 @@ set -e
 
 mkdir step/
 ls -la 
+whoami
+echo $USER
 chown -R 0755 step/
 
 # step certificate create \
