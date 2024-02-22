@@ -25,6 +25,4 @@ step certificate create \
     --ca tls/ca.crt \
     --ca-key tls/ca.key
 
-ls -la tls/
-
-chmod -R 0644 tls/
+sudo chmod -R 0644 tls/
