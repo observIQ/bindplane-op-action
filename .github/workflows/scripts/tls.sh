@@ -31,4 +31,7 @@ step certificate create \
 
 sudo chmod -R 0644 /tmp/step
 
-ls -la /tmp/step
+sudo ls -la /tmp/step
+
+whoami
+echo $USER
