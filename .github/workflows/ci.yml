@@ -68,7 +68,12 @@ jobs:
             --not-after=8760h
 
       - name: Set CA certificate
-        run: echo "TLS_CA_CERT=$(cat tls/ca.crt)" >> $GITHUB_ENV
+        run: |
+          {
+            echo 'TLS_CA_CERT<<EOF'
+            cat tls/ca.crt
+            echo EOF
+          } >> "$GITHUB_ENV"
         shell: bash
 
       - name: Create BindPlane certificate
