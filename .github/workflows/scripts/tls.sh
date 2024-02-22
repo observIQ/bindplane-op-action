@@ -25,4 +25,5 @@ step certificate create \
     --ca tls/ca.crt \
     --ca-key tls/ca.key
 
+sudo chown -R $USER tls/
 sudo chmod -R 0644 tls/
