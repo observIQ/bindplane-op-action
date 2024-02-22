@@ -30,7 +30,7 @@ jobs:
         run: shellcheck -x -s bash entrypoint.sh
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         # This matrix allows us to test multiple bindplane versions.
