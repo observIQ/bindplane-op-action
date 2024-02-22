@@ -27,4 +27,4 @@ step certificate create \
     --ca /tmp/step/ca.crt \
     --ca-key /tmp/step/ca.key
 
-ls -la /tmp/step
+chmod -R 0644 /tmp/step
