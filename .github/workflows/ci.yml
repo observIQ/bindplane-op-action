@@ -38,6 +38,7 @@ jobs:
         # on the bindplane version.
         bindplane_versions:
           - 1.40.0
+          - 1.45.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -70,7 +71,7 @@ jobs:
       - name: Set CA certificate
         run: echo "TLS_CA_CERT=$(cat tls/ca.crt)" >> $GITHUB_ENV
 
-     - name: Create BindPlane certificate
+      - name: Create BindPlane certificate
         run: |
           step certificate create \
             bindplane.internal \
