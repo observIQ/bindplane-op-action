@@ -51,21 +51,8 @@ jobs:
       - name: Print Runner IP
         run: echo $MAIN_IP
 
-      - name: Install step cli
-        run: |
-          wget https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_amd64.deb
-          sudo apt-get install -y -f ./step-cli_amd64.deb
-
-      - name: Create CA certificate
-        run: |
-          mkdir tls
-          step certificate create \
-            ca.internal \
-            tls/ca.crt tls/ca.key \
-            --profile root-ca \
-            --no-password \
-            --insecure \
-            --not-after=8760h
+      - name: Generate TLS Certs
+        run: bash .github/workflows/scripts/tls.sh
 
       - name: Set CA certificate
         run: |
@@ -75,18 +62,6 @@ jobs:
             echo EOF
           } >> "$GITHUB_ENV"
         shell: bash
-
-      - name: Create BindPlane certificate
-        run: |
-          step certificate create \
-            bindplane.internal \
-            tls/bindplane.crt tls/bindplane.key \
-            --profile leaf \
-            --not-after 2160h \
-            --no-password \
-            --insecure \
-            --ca tls/ca.crt \
-            --ca-key tls/ca.key
 
       - name: Pull BindPlane
         run: docker pull ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
