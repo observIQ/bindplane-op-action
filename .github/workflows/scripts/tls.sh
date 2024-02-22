@@ -5,7 +5,7 @@ set -e
 wget https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_amd64.deb
 sudo apt-get install -y -f ./step-cli_amd64.deb
 
-mkdir tls
+mkdir tls/
 
 step certificate create \
     ca.internal \
@@ -25,4 +25,6 @@ step certificate create \
     --ca tls/ca.crt \
     --ca-key tls/ca.key
 
-chmod -R 0644 tls
+ls -la tls/
+
+chmod -R 0644 tls/
