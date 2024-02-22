@@ -5,11 +5,13 @@ set -e
 wget https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_amd64.deb
 sudo apt-get install -y -f ./step-cli_amd64.deb
 
-mkdir step/
+mkdir /tmp/step
+
+ls -la /tmp/step
 
 step certificate create \
     ca.internal \
-    step/ca.crt step/ca.key \
+    /tmp/step/ca.crt /tmp/step/ca.key \
     --profile root-ca \
     --no-password \
     --insecure \
@@ -17,13 +19,12 @@ step certificate create \
 
 step certificate create \
     bindplane.internal \
-    step/bindplane.crt step/bindplane.key \
+    /tmp/step/bindplane.crt /tmp/step/bindplane.key \
     --profile leaf \
     --not-after 2160h \
     --no-password \
     --insecure \
-    --ca step/ca.crt \
-    --ca-key step/ca.key
+    --ca /tmp/step/ca.crt \
+    --ca-key /tmp/step/ca.key
 
-chown -R $USER step/
-chmod -R 0644 step/
+ls -la /tmp/step
