@@ -52,7 +52,7 @@ jobs:
         run: echo $MAIN_IP
 
       - name: Generate TLS Certs
-        run: bash .github/workflows/scripts/tls.sh
+        run: ./.github/workflows/scripts/tls.sh
 
       - name: Set CA certificate
         run: |
