@@ -17,7 +17,7 @@ step certificate create \
 
 step certificate create \
     bindplane.internal \
-    tls/bindplane.crt tls/bindplane.key \
+    step/bindplane.crt step/bindplane.key \
     --profile leaf \
     --not-after 2160h \
     --no-password \
