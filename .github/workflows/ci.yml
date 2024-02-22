@@ -66,6 +66,10 @@ jobs:
             --insecure \
             --not-after=8760h
 
+      # Add CA certificate contents to the env variable TLS_CA
+      - name: Set CA certificate
+        run: echo "TLS_CA_CERT=$(cat tls/ca.crt)" >> $GITHUB_ENV
+
      - name: Create BindPlane certificate
         run: |
           step certificate create \
