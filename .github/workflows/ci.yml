@@ -60,7 +60,6 @@ jobs:
             cat /tmp/step/ca.crt
             echo EOF
           } >> "$GITHUB_ENV"
-        shell: bash
 
       - name: Pull BindPlane
         run: docker pull ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
