@@ -81,11 +81,12 @@ jobs:
           step certificate create \
             bindplane.internal \
             tls/bindplane.crt tls/bindplane.key \
-            --ca tls/ca.crt tls/ca.key \
             --profile leaf \
+            --not-after 2160h \
             --no-password \
             --insecure \
-            --not-after=8760h
+            --ca tls/ca.crt \
+            --ca-key tls/ca.key
 
       - name: Pull BindPlane
         run: docker pull ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
@@ -102,9 +103,11 @@ jobs:
             -e BINDPLANE_SECRET_KEY=8a5353f7-bbf4-4eea-846d-a6d54296b781 \
             -e BINDPLANE_LOG_OUTPUT=stdout \
             -e BINDPLANE_ACCEPT_EULA=true \
-            -e BINDPLANE_TLS_CERT=/tls/bindplane.crt \
-            -e BINDPLANE_TLS_KEY=/tls/bindplane.key \
+            -e BINDPLANE_TLS_CERT=/bindplane.crt \
+            -e BINDPLANE_TLS_KEY=/bindplane.key \
             -p 3001:3001 \
+            -v $(pwd)/tls/bindplane.crt:/bindplane.crt \
+            -v $(pwd)/tls/bindplane.key:/bindplane.key \
             ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
 
       - name: Wait for BindPlane
