@@ -58,7 +58,7 @@ jobs:
         run: |
           {
             echo 'TLS_CA_CERT<<EOF'
-            cat tls/ca.crt
+            cat step/ca.crt
             echo EOF
           } >> "$GITHUB_ENV"
         shell: bash
@@ -81,8 +81,8 @@ jobs:
             -e BINDPLANE_TLS_CERT=/bindplane.crt \
             -e BINDPLANE_TLS_KEY=/bindplane.key \
             -p 3001:3001 \
-            -v $(pwd)/tls/bindplane.crt:/bindplane.crt \
-            -v $(pwd)/tls/bindplane.key:/bindplane.key \
+            -v $(pwd)/step/bindplane.crt:/bindplane.crt \
+            -v $(pwd)/step/bindplane.key:/bindplane.key \
             ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
 
       - name: Wait for BindPlane

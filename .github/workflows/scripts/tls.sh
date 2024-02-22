@@ -5,11 +5,11 @@ set -e
 wget https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_amd64.deb
 sudo apt-get install -y -f ./step-cli_amd64.deb
 
-mkdir tls/
+mkdir step/
 
 step certificate create \
     ca.internal \
-    tls/ca.crt tls/ca.key \
+    step/ca.crt step/ca.key \
     --profile root-ca \
     --no-password \
     --insecure \
@@ -22,8 +22,8 @@ step certificate create \
     --not-after 2160h \
     --no-password \
     --insecure \
-    --ca tls/ca.crt \
-    --ca-key tls/ca.key
+    --ca step/ca.crt \
+    --ca-key step/ca.key
 
-sudo chown -R $USER tls/
-sudo chmod -R 0644 tls/
+chown -R $USER step/
+chmod -R 0644 step/
