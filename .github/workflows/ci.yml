@@ -96,7 +96,7 @@ jobs:
           polling_interval_seconds: 2
           max_attempts: 3
           shell: bash
-          command: BINDPLANE_TLS_CA=/ca.crt docker exec bindplane /bindplane get agent
+          command: BINDPLANE_TLS_SKIP_VERIFY=true docker exec bindplane /bindplane get agent
 
       - name: Run BindPlane Action
         # This should be replaced with a release action.
