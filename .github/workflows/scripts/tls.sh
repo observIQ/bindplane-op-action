@@ -10,6 +10,7 @@ set -e
 # rm -rf step_0.22.0
 
 mkdir step/
+ls -la 
 chown -R 0755 step/
 
 # step certificate create \
