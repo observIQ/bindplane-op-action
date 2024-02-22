@@ -27,7 +27,6 @@ step certificate create \
     --ca /tmp/step/ca.crt \
     --ca-key /tmp/step/ca.key
 
-sudo chown -R $USER:$USER /tmp/step
 sudo chmod -R 0644 /tmp/step
 
 ls -la /tmp/step
