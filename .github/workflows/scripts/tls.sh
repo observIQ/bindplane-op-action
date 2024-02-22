@@ -2,6 +2,11 @@
 
 set -e
 
+if [ -z "$MAIN_IP" ]; then
+    echo "MAIN_IP is not set"
+    exit 1
+fi
+
 curl -L -s -o step.tar.gz \
     https://dl.step.sm/gh-release/cli/gh-release-header/v0.22.0/step_linux_0.22.0_amd64.tar.gz
 tar -xzf step.tar.gz
@@ -23,6 +28,7 @@ step certificate create \
 step certificate create \
     bindplane.internal \
     step/bindplane.crt step/bindplane.key \
+    --san ${MAIN_IP} \
     --profile leaf \
     --not-after 2160h \
     --no-password \

@@ -52,6 +52,8 @@ jobs:
 
       - name: Generate TLS Certs
         run: ./.github/workflows/scripts/tls.sh
+        env:
+          MAIN_IP: ${{ env.MAIN_IP }}
 
       - name: Set CA certificate
         run: |
@@ -88,8 +90,8 @@ jobs:
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 1
-          polling_interval_seconds: 5
-          max_attempts: 10
+          polling_interval_seconds: 2
+          max_attempts: 3
           shell: bash
           command: BINDPLANE_TLS_CA=/ca.crt docker exec bindplane /bindplane get agent
 
