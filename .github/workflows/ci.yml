@@ -81,6 +81,7 @@ jobs:
             -p 3001:3001 \
             -v $(pwd)/step/bindplane.crt:/bindplane.crt \
             -v $(pwd)/step/bindplane.key:/bindplane.key \
+            -v $(pwd)/step/ca.crt:/ca.crt \
             ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
 
       - name: Wait for BindPlane
@@ -90,7 +91,7 @@ jobs:
           polling_interval_seconds: 5
           max_attempts: 10
           shell: bash
-          command: docker exec bindplane /bindplane get agent
+          command: BINDPLANE_TLS_CA=/ca.crt docker exec bindplane /bindplane get agent
 
       - name: Run BindPlane Action
         # This should be replaced with a release action.
