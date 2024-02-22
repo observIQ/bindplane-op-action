@@ -26,8 +26,11 @@ jobs:
       - name: Install ShellCheck
         run: sudo apt-get install shellcheck
 
-      - name: Run ShellCheck
+      - name: Run ShellCheck entrypoint.sh
         run: shellcheck -x -s bash entrypoint.sh
+
+      - name: Run ShellCheck test script
+        run: shellcheck -x -s bash .github/workflows/scripts/*.sh
 
   test:
     runs-on: ubuntu-20.04
