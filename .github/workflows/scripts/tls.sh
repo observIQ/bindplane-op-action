@@ -8,10 +8,9 @@ tar -xzf step.tar.gz
 mv step_0.22.0/bin/step /usr/local/bin/step
 
 mkdir step
+chown -R 0755 step
 
-ls -la step
-
-sudo step certificate create \
+step certificate create \
     ca.internal \
     step/ca.crt step/ca.key \
     --profile root-ca \
@@ -19,7 +18,7 @@ sudo step certificate create \
     --insecure \
     --not-after=8760h
 
-sudo step certificate create \
+step certificate create \
     bindplane.internal \
     step/bindplane.crt step/bindplane.key \
     --profile leaf \
@@ -29,7 +28,9 @@ sudo step certificate create \
     --ca step/ca.crt \
     --ca-key step/ca.key
 
-sudo chmod -R 0644 step
+chmod 0644 step/*
+
+sudo ls -la step
 
 cat step/ca.crt
 cat step/ca.key
