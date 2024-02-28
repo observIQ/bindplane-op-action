@@ -30,6 +30,8 @@ inputs:
   enable_auto_rollout:
     description: 'When enabled, the action will trigger a rollout for all configurations that have been updated'
     default: false
+  tls_ca_cert:
+    description: 'The CA certificate to use when connecting to BindPlane OP'
 
 runs:
   using: 'docker'
@@ -49,3 +51,4 @@ runs:
     - ${{ inputs.token }}
     - ${{ inputs.enable_auto_rollout }}
     - ${{ inputs.configuration_output_branch }}
+    - ${{ inputs.tls_ca_cert }}

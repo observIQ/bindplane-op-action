@@ -26,18 +26,23 @@ jobs:
       - name: Install ShellCheck
         run: sudo apt-get install shellcheck
 
-      - name: Run ShellCheck
+      - name: Run ShellCheck entrypoint.sh
         run: shellcheck -x -s bash entrypoint.sh
 
+      - name: Run ShellCheck test script
+        run: shellcheck -x -s bash .github/workflows/scripts/*.sh
+
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         # This matrix allows us to test multiple bindplane versions.
         # When writing back to the repo, we write to directories based
         # on the bindplane version.
         bindplane_versions:
-          - 1.40.0
+          - 1.37.0
+          - 1.45.0
+          - latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,6 +55,19 @@ jobs:
       - name: Print Runner IP
         run: echo $MAIN_IP
 
+      - name: Generate TLS Certs
+        run: ./.github/workflows/scripts/tls.sh
+        env:
+          MAIN_IP: ${{ env.MAIN_IP }}
+
+      - name: Set CA certificate
+        run: |
+          {
+            echo 'TLS_CA_CERT<<EOF'
+            cat step/ca.crt
+            echo EOF
+          } >> "$GITHUB_ENV"
+
       - name: Pull BindPlane
         run: docker pull ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
 
@@ -60,22 +78,27 @@ jobs:
             --name bindplane \
             -e BINDPLANE_USERNAME=admin \
             -e BINDPLANE_PASSWORD=admin \
-            -e BINDPLANE_REMOTE_URL=http://${MAIN_IP}:3001 \
+            -e BINDPLANE_REMOTE_URL=https://${MAIN_IP}:3001 \
             -e BINDPLANE_SESSION_SECRET=2c23c9d3-850f-4062-a5c8-3f9b814ae144 \
             -e BINDPLANE_SECRET_KEY=8a5353f7-bbf4-4eea-846d-a6d54296b781 \
             -e BINDPLANE_LOG_OUTPUT=stdout \
             -e BINDPLANE_ACCEPT_EULA=true \
+            -e BINDPLANE_TLS_CERT=/bindplane.crt \
+            -e BINDPLANE_TLS_KEY=/bindplane.key \
             -p 3001:3001 \
+            -v $(pwd)/step/bindplane.crt:/bindplane.crt \
+            -v $(pwd)/step/bindplane.key:/bindplane.key \
+            -v $(pwd)/step/ca.crt:/ca.crt \
             ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
 
       - name: Wait for BindPlane
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 1
-          polling_interval_seconds: 5
-          max_attempts: 10
+          polling_interval_seconds: 2
+          max_attempts: 3
           shell: bash
-          command: docker exec bindplane /bindplane get agent
+          command: docker exec bindplane /bindplane get agent --tls-ca /ca.crt
 
       - name: Run BindPlane Action
         # This should be replaced with a release action.
@@ -103,12 +126,15 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           enable_otel_config_write_back: true
           enable_auto_rollout: true
+          # Generally this would come from a secret, but the certificate
+          # was created in this workflow.
+          tls_ca_cert: ${{ env.TLS_CA_CERT }}
 
       - name: Get Resources
         if: always()
         run: |
-          docker exec bindplane /bindplane get destinations
-          docker exec bindplane /bindplane get configurations
+          docker exec bindplane /bindplane get destinations --tls-ca /ca.crt
+          docker exec bindplane /bindplane get configurations --tls-ca /ca.crt
 
       - name: Debug Container Logs
         if: always()
