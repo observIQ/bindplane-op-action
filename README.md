@@ -21,6 +21,7 @@ server. It also supports exporting the OpenTelemetry configurations back to the 
 | configuration_output_branch   |            | The branch to write the OTEL configuration resources to. If unset, target_branch will be used. |
 | token                         |            | The Github token that will be used to write to the repo. Usually secrets.GITHUB_TOKEN is sufficient. Requires the `contents.write` permission. |
 | enable_auto_rollout           | `false`    | When enabled, the action will trigger a rollout for any configuration that has been updated. |
+| tls_ca_cert                   |            | The contents of a TLS certificate authority, usually from a secret. See the [TLS](#tls) section. |
 
 ## Usage
 
@@ -94,4 +95,25 @@ otel
 ├── k8s-cluster.yaml
 ├── k8s-gateway.yaml
 └── k8s-node.yaml
+```
+
+### TLS
+
+TLS can be configured by setting `tls_ca_cert` to a secret that contains
+your TLS certificate authority. This should be the contents of an x509 PEM
+certificate, not a file path.
+
+This example shows `tls_ca_cert` being set using a secret, and `bindplane_remote_url`
+using a TLS endpoint (`https`).
+
+```yaml
+- uses: observIQ/bindplane-op-action@main
+  with:
+    tls_ca_cert: ${{ secrets.TLS_CA }}
+    bindplane_remote_url: https://bindplane.mycorp.net
+    bindplane_username: ${{ secrets.BINDPLANE_USERNAME }}
+    bindplane_password: ${{ secrets.BINDPLANE_PASSWORD }}
+    target_branch: main
+    destination_path: destination.yaml
+    configuration_path: configuration.yaml     
 ```
