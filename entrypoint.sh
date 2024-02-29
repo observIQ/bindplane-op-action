@@ -64,6 +64,7 @@ validate() {
   if [ -n "$tls_ca_cert" ]; then
     echo "tls_ca_cert is set, adding to profile."
     echo "$tls_ca_cert" > ca.pem
+    cat ca.pem
     profile_args="$profile_args --tls-ca ca.pem"
   fi
 
