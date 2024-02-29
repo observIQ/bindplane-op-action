@@ -15,6 +15,7 @@ configuration_output_dir=${9}
 token=${10}
 enable_auto_rollout=${11}
 configuration_output_branch=${12}
+tls_ca_cert=${13}
 
 # This branch name will be compared to target_branch to determine if the action
 # should apply or write back configurations.
@@ -24,7 +25,7 @@ echo "Current branch is $BRANCH_NAME"
 install_bindplane_cli() {
   curl -Ls \
     -o bindplane.zip \
-    https://storage.googleapis.com/bindplane-op-releases/bindplane/latest/bindplane-ee-linux-amd64.zip
+    https://storage.googleapis.com/bindplane-op-releases/bindplane/1.46.0/bindplane-ee-linux-amd64.zip
 
   mkdir -p ~/bin
   export PATH=$PATH:~/bin
@@ -66,6 +67,12 @@ validate() {
     exit 1
   elif [ -n "$bindplane_api_key" ]; then
     profile_args="$profile_args --api-key $bindplane_api_key"
+  fi
+
+  if [ -n "$tls_ca_cert" ]; then
+    echo "tls_ca_cert is set, adding to profile."
+    echo "$tls_ca_cert" > ca.pem
+    profile_args="$profile_args --tls-ca ca.pem"
   fi
 
   # configuration_output_dir, target_branch, and token are only required
