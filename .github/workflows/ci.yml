@@ -114,7 +114,7 @@ jobs:
           # executes in a container and localhost will always be the container's network
           # and not the network of the bindplane instance, even if that instance
           # is running within this runner.
-          bindplane_remote_url: http://${{ env.MAIN_IP }}:3001
+          bindplane_remote_url: https://${{ env.MAIN_IP }}:3001
           bindplane_username: admin
           bindplane_password: admin
           destination_path: test/resources/destinations/resource.yaml
