@@ -145,15 +145,6 @@ write_back() {
 }
 
 main() {
-  # Short circuit if the current branch does not match the target branch,
-  # there is nothing to do.
-  if [ "$BRANCH_NAME" != "$target_branch" ]; then
-    echo "Skipping apply and repo write. Current branch ${BRANCH_NAME} does not match target branch ${target_branch}."
-    exit 0
-  fi
-
-  echo "Target branch ${target_branch} matches current branch ${BRANCH_NAME}."
-
   # Install the CLI right away in order to construct
   # a client profile.
   echo "Installing bindplane CLI."
@@ -163,6 +154,15 @@ main() {
   # the client profile.
   echo "Validating options and configuring client profile."
   validate
+
+  # Short circuit if the current branch does not match the target branch,
+  # there is nothing to do.
+  if [ "$BRANCH_NAME" != "$target_branch" ]; then
+    echo "Skipping apply and repo write. Current branch ${BRANCH_NAME} does not match target branch ${target_branch}."
+    exit 0
+  fi
+
+  echo "Target branch ${target_branch} matches current branch ${BRANCH_NAME}."
 
   # Apply resources in the correct order.
   echo "Applying resources."
