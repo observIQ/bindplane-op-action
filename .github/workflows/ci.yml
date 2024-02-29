@@ -121,7 +121,7 @@ jobs:
           configuration_path: test/resources/configurations/resource.yaml
           configuration_output_dir: test/otel/${{ matrix.bindplane_versions }}
           configuration_output_branch: otel-raw-configs
-          target_branch: main
+          target_branch: fix/tls-ca-cert # main
           # Token should have contents: write permissions
           token: ${{ secrets.GITHUB_TOKEN }}
           enable_otel_config_write_back: true
