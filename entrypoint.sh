@@ -40,14 +40,6 @@ install_bindplane_cli() {
 validate() {
   profile_args=""
 
-  # Target branch is always required. When not set, the script will not
-  # know which branch it should apply configurations from or write back
-  # raw otel configs.
-  if [ -z "$target_branch" ]; then
-    echo "target_branch is required when enable_otel_config_write_back is true."
-    exit 1
-  fi
-
   if [ -z "$bindplane_remote_url" ]; then
     echo "bindplane_remote_url is not set."
     exit 1
@@ -73,6 +65,14 @@ validate() {
     echo "tls_ca_cert is set, adding to profile."
     echo "$tls_ca_cert" > ca.pem
     profile_args="$profile_args --tls-ca ca.pem"
+  fi
+
+  # Target branch is always required. When not set, the script will not
+  # know which branch it should apply configurations from or write back
+  # raw otel configs.
+  if [ -z "$target_branch" ]; then
+    echo "target_branch is required when enable_otel_config_write_back is true."
+    exit 1
   fi
 
   # configuration_output_dir, target_branch, and token are only required
