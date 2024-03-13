@@ -16,6 +16,10 @@ inputs:
     description: 'Resource apply and OTEL config write back will only happen when this branch is the current branch of the action'
   destination_path:
     description: 'Path to the file which contains the BindPlane destination resources'
+  source_path:
+    description: 'Path to the file which contains the BindPlane source resources'
+  processor_path:
+    description: 'Path to the file which contains the BindPlane processor resources'
   configuration_path:
     description: 'Path to the file which contains the BindPlane configuration resources'
   enable_otel_config_write_back:
@@ -52,3 +56,5 @@ runs:
     - ${{ inputs.enable_auto_rollout }}
     - ${{ inputs.configuration_output_branch }}
     - ${{ inputs.tls_ca_cert }}
+    - ${{ inputs.source_path }}
+    - ${{ inputs.processor_path }}
