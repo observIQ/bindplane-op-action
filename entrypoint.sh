@@ -16,6 +16,8 @@ token=${10}
 enable_auto_rollout=${11}
 configuration_output_branch=${12}
 tls_ca_cert=${13}
+source_path=${14}
+processor_path=${15}
 
 # This branch name will be compared to target_branch to determine if the action
 # should apply or write back configurations.
@@ -104,6 +106,16 @@ validate() {
     fi
   fi
 
+  if [ -z "$configuration_path" ]; then
+    echo "configuration_path is required."
+    exit 1
+  fi
+
+  if [ -z "$destination_path" ]; then
+    echo "destination_path is required."
+    exit 1
+  fi
+
   eval bindplane profile set "action" "$profile_args"
   bindplane profile use "action"
 }
@@ -170,6 +182,16 @@ main() {
 
   echo "Applying destination path: $destination_path"
   bindplane apply "$destination_path"
+
+  if [ -n "$source_path" ]; then
+    echo "Applying source path: $source_path"
+    bindplane apply "$source_path"
+  fi
+
+  if [ -n "$processor_path" ]; then
+    echo "Applying processor path: $processor_path"
+    bindplane apply "$processor_path"
+  fi
 
   echo "Applying configuration path: $configuration_path"
   bindplane apply "$configuration_path" > configuration.out

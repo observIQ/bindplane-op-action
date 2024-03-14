@@ -14,8 +14,10 @@ server. It also supports exporting the OpenTelemetry configurations back to the 
 | bindplane_username            |            | Username used to authenticate to BindPlane. Not required if API key is set. |
 | bindplane_password            |            | Password used to authenticate to BindPlane.
 | target_branch                 | required   | The branch that the action will use when applying resources to bindplane or when writing otel configs back to the repo. |
-| destination_path              |            | Path to the file which contains the BindPlane destination resources |
-| configuration_path            |            | Path to the file which contains the BindPlane configuration resources |
+| destination_path              | required   | Path to the file which contains the BindPlane destination resources |
+| source_path                   |            | Path to the file which contains the BindPlane source resources |
+| processor_path                |            | Path to the file which contains the BindPlane processor resources |
+| configuration_path            | required   | Path to the file which contains the BindPlane configuration resources |
 | enable_otel_config_write_back | `false`    | Whether or not the action should write the raw OpenTelemetry configurations back to the repository. | 
 | configuration_output_dir      |            | When write back is enabled, this is the path that will be written to. |
 | configuration_output_branch   |            | The branch to write the OTEL configuration resources to. If unset, target_branch will be used. |
@@ -32,6 +34,8 @@ the `bindplane get` commands with the `--export` flag.
 
 ```bash
 bindplane get destination -o yaml --export > destination.yaml
+bindplane get source -o yaml --export > source.yaml
+bindplane get processor -o yaml --export > processor.yaml
 bindplane get configuration -o yaml --export > configuration.yaml
 ```
 
