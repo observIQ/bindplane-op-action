@@ -85,12 +85,14 @@ jobs:
             -e BINDPLANE_ACCEPT_EULA=true \
             -e BINDPLANE_TLS_CERT=/bindplane.crt \
             -e BINDPLANE_TLS_KEY=/bindplane.key \
-            -e BINDPLANE_LICENSE=${{ secrets.BINDPLANE_LICENSE }} \
+            -e BINDPLANE_LICENSE="${BINDPLANE_LICENSE}" \
             -p 3001:3001 \
             -v $(pwd)/step/bindplane.crt:/bindplane.crt \
             -v $(pwd)/step/bindplane.key:/bindplane.key \
             -v $(pwd)/step/ca.crt:/ca.crt \
             ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
+        env:
+          BINDPLANE_LICENSE: ${{ secrets.BINDPLANE_LICENSE }}
 
       - name: Wait for BindPlane
         uses: nick-fields/retry@v2
