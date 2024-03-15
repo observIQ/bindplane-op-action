@@ -5,6 +5,10 @@
 The BindPlane OP action can be used to deploy configurations to your BindPlane OP
 server. It also supports exporting the OpenTelemetry configurations back to the repository.
 
+## Prerequisites
+
+BindPlane requires a license. You can request a free license [here](https://observiq.com/download).
+
 ## Configuration
 
 | Parameter                     | Default    | Description                     |

@@ -85,6 +85,7 @@ jobs:
             -e BINDPLANE_ACCEPT_EULA=true \
             -e BINDPLANE_TLS_CERT=/bindplane.crt \
             -e BINDPLANE_TLS_KEY=/bindplane.key \
+            -e BINDPLANE_LICENSE=${{ secrets.BINDPLANE_LICENSE }} \
             -p 3001:3001 \
             -v $(pwd)/step/bindplane.crt:/bindplane.crt \
             -v $(pwd)/step/bindplane.key:/bindplane.key \
