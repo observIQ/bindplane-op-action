@@ -2,6 +2,8 @@
 
 set -e
 
+BINDPLANE_VERSION="1.49.0"
+
 # This order must match the order in acitons.yml
 bindplane_remote_url=${1}
 bindplane_api_key=${2}
@@ -27,7 +29,7 @@ echo "Current branch is $BRANCH_NAME"
 install_bindplane_cli() {
   curl -Ls \
     -o bindplane.zip \
-    https://storage.googleapis.com/bindplane-op-releases/bindplane/1.46.0/bindplane-ee-linux-amd64.zip
+    "https://storage.googleapis.com/bindplane-op-releases/bindplane/${BINDPLANE_VERSION}/bindplane-ee-linux-amd64.zip"
 
   mkdir -p ~/bin
   export PATH=$PATH:~/bin
