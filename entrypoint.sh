@@ -183,20 +183,20 @@ main() {
   echo "Applying resources."
 
   echo "Applying destination path: $destination_path"
-  bindplane apply "$destination_path"
+  eval bindplane apply "$destination_path"
 
   if [ -n "$source_path" ]; then
     echo "Applying source path: $source_path"
-    bindplane apply "$source_path"
+    eval bindplane apply "$source_path"
   fi
 
   if [ -n "$processor_path" ]; then
     echo "Applying processor path: $processor_path"
-    bindplane apply "$processor_path"
+    eval bindplane apply "$processor_path"
   fi
 
   echo "Applying configuration path: $configuration_path"
-  bindplane apply "$configuration_path" > configuration.out
+  eval bindplane apply "$configuration_path" > configuration.out
   cat configuration.out
 
   # When auto rollout is enabled
