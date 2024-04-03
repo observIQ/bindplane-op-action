@@ -2,7 +2,7 @@
 
 set -e
 
-BINDPLANE_VERSION="1.50.0"
+BINDPLANE_VERSION="1.51.0"
 
 # This order must match the order in acitons.yml
 bindplane_remote_url=${1}
