@@ -20,6 +20,7 @@ configuration_output_branch=${12}
 tls_ca_cert=${13}
 source_path=${14}
 processor_path=${15}
+github_host=${16}
 
 # This branch name will be compared to target_branch to determine if the action
 # should apply or write back configurations.
@@ -132,7 +133,7 @@ write_back() {
   git clone \
     --depth 1 \
     --branch "$write_back_branch" \
-    "https://${GITHUB_ACTOR}:${token}@github.com/${GITHUB_REPOSITORY}.git" \
+    "https://${GITHUB_ACTOR}:${token}@${github_host}/${GITHUB_REPOSITORY}.git" \
     ../out_repo
 
   cd "../out_repo"

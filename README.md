@@ -28,6 +28,8 @@ BindPlane requires a license. You can request a free license [here](https://obse
 | token                         |            | The Github token that will be used to write to the repo. Usually secrets.GITHUB_TOKEN is sufficient. Requires the `contents.write` permission. |
 | enable_auto_rollout           | `false`    | When enabled, the action will trigger a rollout for any configuration that has been updated. |
 | tls_ca_cert                   |            | The contents of a TLS certificate authority, usually from a secret. See the [TLS](#tls) section. |
+| github_host                | `github.com` | The hostname to use when cloning the repository. |
+
 
 ## Usage
 
