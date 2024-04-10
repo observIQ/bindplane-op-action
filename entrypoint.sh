@@ -20,6 +20,7 @@ configuration_output_branch=${12}
 tls_ca_cert=${13}
 source_path=${14}
 processor_path=${15}
+github_url=${16}
 
 # This branch name will be compared to target_branch to determine if the action
 # should apply or write back configurations.
@@ -89,9 +90,12 @@ validate() {
       exit 1
     fi
 
+    # A token or github_url are required when target_branch is set.
     if [ -z "$token" ]; then
-      echo "token is required when target_branch is set."
-      exit 1
+      if [ -z "$github_url" ]; then
+        echo "token or github_url are required when target_branch is set."
+        exit 1
+      fi
     fi
 
     # GITHUB_ACTOR and GITHUB_REPOSITORY are set by the github actions runtime
@@ -127,12 +131,18 @@ write_back() {
   # write back branch will be the same as the target branch.
   write_back_branch=${configuration_output_branch:-$target_branch}
 
+  # if the github_url is set, use it, otherwise default to github.com
+  github_url=${github_url:-github.com}
+  if [ -z "$github_host" ]; then
+    github_url="https://${GITHUB_ACTOR}:${token}@github.com/${GITHUB_REPOSITORY}.git"
+  fi
+
   # Clone the repo on the current branch
   # and use depth 1 to avoid cloning the entire history.
   git clone \
     --depth 1 \
     --branch "$write_back_branch" \
-    "https://${GITHUB_ACTOR}:${token}@github.com/${GITHUB_REPOSITORY}.git" \
+    "${github_url}" \
     ../out_repo
 
   cd "../out_repo"

@@ -36,6 +36,8 @@ inputs:
     default: false
   tls_ca_cert:
     description: 'The CA certificate to use when connecting to BindPlane OP'
+  github_url:
+    description: 'The GitHub URL to use when connecting to GitHub'
 
 runs:
   using: 'docker'
@@ -58,3 +60,4 @@ runs:
     - ${{ inputs.tls_ca_cert }}
     - ${{ inputs.source_path }}
     - ${{ inputs.processor_path }}
+    - ${{ inputs.github_url }}
