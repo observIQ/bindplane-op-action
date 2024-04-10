@@ -142,7 +142,7 @@ write_back() {
   git clone \
     --depth 1 \
     --branch "$write_back_branch" \
-    "https://${GITHUB_ACTOR}:${token}@${github_host}/${GITHUB_REPOSITORY}.git" \
+    "${github_url}" \
     ../out_repo
 
   cd "../out_repo"
