@@ -80,7 +80,7 @@ validate() {
     ca_full_path=$(pwd)/ca.pem
     # TODO(jsirianni): Switch to flag param when fixed
     export BINDPLANE_TLS_CA="$ca_full_path"
-    # profile_args="$profile_args --tls-ca ca_full_path"
+    # profile_args="$profile_args --tls-ca $ca_full_path"
   fi
 
   # configuration_output_dir, target_branch, and token are only required
