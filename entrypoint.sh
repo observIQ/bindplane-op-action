@@ -131,10 +131,11 @@ write_back() {
   # write back branch will be the same as the target branch.
   write_back_branch=${configuration_output_branch:-$target_branch}
 
-  # if the github_url is set, use it, otherwise default to github.com
-  github_url=${github_url:-github.com}
-  if [ -z "$github_host" ]; then
+  if [ -z "$github_url" ]; then
     github_url="https://${GITHUB_ACTOR}:${token}@github.com/${GITHUB_REPOSITORY}.git"
+    echo "Using github.com"
+  else
+    echo "Using configured github_url"
   fi
 
   # Clone the repo on the current branch
