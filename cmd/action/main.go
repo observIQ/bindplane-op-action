@@ -99,11 +99,15 @@ func main() {
 	}
 
 	logger.Info("Testing connection to BindPlane API")
-	if err := action.TestConnection(); err != nil {
+	version, err := action.TestConnection()
+	if err != nil {
 		fmt.Printf("Error testing connection: %s\n", err)
 		os.Exit(exitClientTestConnectionError)
 	}
-	logger.Info("Testing connection to BindPlane API successful")
+	logger.Info(
+		"Testing connection to BindPlane API successful",
+		zap.Any("bindplane_version", version.Tag),
+	)
 
 	if err := action.Run(); err != nil {
 		action.Logger.Error("error running action", zap.Error(err))

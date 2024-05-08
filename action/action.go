@@ -6,6 +6,7 @@ import (
 
 	"github.com/observiq/bindplane-op-action/client"
 	"github.com/observiq/bindplane-op-action/client/config"
+	"github.com/observiq/bindplane-op-action/client/version"
 
 	"go.uber.org/zap"
 )
@@ -180,14 +181,13 @@ type Action struct {
 	client *client.BindPlane
 }
 
-// Version calls the BindPlane client's Version method
-// and
-func (a *Action) TestConnection() error {
-	_, err := a.client.Version(context.Background())
+// TestConnection wraps the BindPlane client's Version method
+func (a *Action) TestConnection() (version.Version, error) {
+	v, err := a.client.Version(context.Background())
 	if err != nil {
-		return fmt.Errorf("failed to test connection: %w", err)
+		return version.Version{}, fmt.Errorf("failed to test connection: %w", err)
 	}
-	return nil
+	return v, err
 }
 
 func (a *Action) Apply() error {
