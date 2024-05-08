@@ -58,6 +58,7 @@ func main() {
 	zapConf := zap.NewProductionConfig()
 	zapConf.Level.SetLevel(zap.InfoLevel)
 	zapConf.OutputPaths = []string{"stdout"}
+	zapConf.DisableStacktrace = true
 	logger, err := zapConf.Build()
 	if err != nil {
 		fmt.Printf("failed to create logger: %s\n", err)
@@ -97,10 +98,12 @@ func main() {
 		os.Exit(exitClientInitError)
 	}
 
+	logger.Info("Testing connection to BindPlane API")
 	if err := action.TestConnection(); err != nil {
 		fmt.Printf("Error testing connection: %s\n", err)
 		os.Exit(exitClientTestConnectionError)
 	}
+	logger.Info("Testing connection to BindPlane API successful")
 
 	if err := action.Run(); err != nil {
 		action.Logger.Error("error running action", zap.Error(err))
