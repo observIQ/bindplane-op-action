@@ -3,6 +3,7 @@ package action
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/observiq/bindplane-op-action/client"
@@ -11,6 +12,8 @@ import (
 	"github.com/observiq/bindplane-op-action/client/version"
 	"gopkg.in/yaml.v3"
 
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"go.uber.org/zap"
 )
 
@@ -355,6 +358,42 @@ func (a *Action) AutoRollout() error {
 }
 
 func (a *Action) WriteBack() error {
+	// TODO(jsirianni): githubURL should be assembled outside of this package
+	// and passed in. We could remove the need for token, actor, and repo.
+	cloneURL := a.githubURL
+	githubActor := os.Getenv("GITHUB_ACTOR")
+	githubRepo := os.Getenv("GITHUB_REPOSITORY")
+	if cloneURL == "" {
+		cloneURL = fmt.Sprintf(
+			"https://%s:%s@github.com/%s.git",
+			githubActor,
+			a.githubToken,
+			githubRepo,
+		)
+	}
+	// TODO(jsirianni) this is just for quick testing, remove before merge
+	if _, err := url.Parse(cloneURL); err != nil {
+		panic("invalid github url")
+	}
+
+	a.Logger.Info(
+		"Cloning repository", zap.String("branch", a.configurationOutputBranch),
+	)
+
+	_, err := git.PlainClone("./out_repo", false, &git.CloneOptions{
+		URL:           cloneURL,
+		Progress:      os.Stdout,
+		SingleBranch:  true,
+		ReferenceName: plumbing.NewBranchReferenceName(a.configurationOutputBranch),
+	})
+	if err != nil {
+		return fmt.Errorf("clone repository: %w", err)
+	}
+
+	a.Logger.Info(
+		"Repository cloned", zap.String("branch", a.configurationOutputBranch),
+	)
+
 	return nil
 }
 
