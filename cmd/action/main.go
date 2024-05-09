@@ -105,7 +105,7 @@ func main() {
 		os.Exit(exitClientTestConnectionError)
 	}
 	logger.Info(
-		"Testing connection to BindPlane API successful",
+		"Connection to BindPlane API successful",
 		zap.Any("bindplane_version", version.Tag),
 	)
 
