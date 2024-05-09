@@ -206,19 +206,19 @@ func (a *Action) TestConnection() (version.Version, error) {
 // applied last because they will reference other resources.
 func (a *Action) Apply() error {
 	if err := a.apply(destination, a.destinationPath); err != nil {
-		return fmt.Errorf("failed to apply destinations: %w", err)
+		return fmt.Errorf("destinations: %w", err)
 	}
 
 	if err := a.apply(source, a.sourcePath); err != nil {
-		return fmt.Errorf("failed to apply sources: %w", err)
+		return fmt.Errorf("sources: %w", err)
 	}
 
 	if err := a.apply(processor, a.processorPath); err != nil {
-		return fmt.Errorf("failed to apply processors: %w", err)
+		return fmt.Errorf("processors: %w", err)
 	}
 
 	if err := a.apply(configuration, a.configurationPath); err != nil {
-		return fmt.Errorf("failed to apply configuration: %w", err)
+		return fmt.Errorf("configuration: %w", err)
 	}
 
 	return nil
@@ -230,7 +230,7 @@ func (a *Action) apply(resourceType rType, path string) error {
 	a.Logger.Info("Applying resource", zap.String("type", string(resourceType)), zap.String("file", path))
 	resp, err := a.client.ApplyFile(context.Background(), path)
 	if err != nil {
-		return fmt.Errorf("failed to apply resource: %w", err)
+		return fmt.Errorf("client error: %w", err)
 	}
 
 	for _, s := range resp {
@@ -250,13 +250,13 @@ func (a *Action) apply(resourceType rType, path string) error {
 		case model.StatusUnchanged, model.StatusConfigured, model.StatusCreated:
 			continue
 		case model.StatusInvalid:
-			return fmt.Errorf("failed to apply resource, invalid resource: %s: %s", name, s.Reason)
+			return fmt.Errorf("invalid resource: %s: %s", name, s.Reason)
 		case model.StatusError:
-			return fmt.Errorf("failed to apply resource, error: %s: %s", name, s.Reason)
+			return fmt.Errorf("error: %s: %s", name, s.Reason)
 		case model.StatusForbidden:
-			return fmt.Errorf("failed to apply resource, forbidden: %s: %s", name, s.Reason)
+			return fmt.Errorf("forbidden: %s: %s", name, s.Reason)
 		default:
-			return fmt.Errorf("failed to apply resource, unexpected status: %s", status)
+			return fmt.Errorf("unexpected status: %s", status)
 		}
 	}
 
@@ -274,7 +274,7 @@ func (a *Action) WriteBack() error {
 // Run executes the action
 func (a *Action) Run() error {
 	if err := a.Apply(); err != nil {
-		return fmt.Errorf("failed to apply configuration: %w", err)
+		return fmt.Errorf("failed to apply resources: %w", err)
 	}
 
 	if a.autoRollout {
