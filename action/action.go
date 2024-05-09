@@ -9,7 +9,7 @@ import (
 	"github.com/observiq/bindplane-op-action/client/config"
 	"github.com/observiq/bindplane-op-action/client/model"
 	"github.com/observiq/bindplane-op-action/client/version"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"go.uber.org/zap"
 )
@@ -253,19 +253,28 @@ func (a *Action) Apply() error {
 // apply takes a file path and applies it to the BindPlane API. If an
 // error is found in the response status, it will be returned
 func (a *Action) apply(path string) error {
-	fileBytes, err := os.ReadFile(path)
+	f, err := os.Open(path)
 	if err != nil {
 		return fmt.Errorf("unable to read file at path %s: %w", path, err)
 	}
 
-	// TODO(jsirianni): Should we return an error for an empty file?
-	if fileBytes == nil || len(fileBytes) == 0 {
+	if f == nil || len(f) == 0 {
+		a.Logger.Warn("Resource file is empty, skipping apply", zap.String("path", path))
 		return nil
 	}
 
 	resources := []*model.AnyResource{}
-	if err := yaml.Unmarshal(fileBytes, &resources); err != nil {
-		return fmt.Errorf("resource file %s is malformed, failed to unmarshal yaml: %w", path, err)
+	decoder := yaml.NewDecoder(f)
+	for {
+		var resource model.AnyResource
+		if err := decoder.Decode(&resource); err != nil {
+			if err.Error() == "EOF" {
+				break
+			}
+			// TODO(jsirianni): Should we continue and report the error after?
+			return fmt.Errorf("resource file %s is malformed, failed to unmarshal yaml: %w", path, err)
+		}
+		resources = append(resources, &resource)
 	}
 
 	resp, err := a.client.Apply(context.Background(), resources)
@@ -274,6 +283,9 @@ func (a *Action) apply(path string) error {
 	}
 
 	// TODO(jsirianni): Probably do not need this, even debug
+	// TODO(jsirianni): If response is nil, should we fail with
+	// an error indicating that this is a bug with the action or bindplane, considering
+	// client.Apply should return an error if something went wrong?
 	a.Logger.Debug("Resource response", zap.Any("response", resp))
 
 	for _, s := range resp {
