@@ -430,7 +430,7 @@ func (a *Action) WriteBack() error {
 		}
 		c.Spec.Sources = sources
 
-		path := fmt.Sprintf("./out_repo/%s.yaml", c.Metadata.Name)
+		path := fmt.Sprintf("./out_repo/%s/%s.yaml", a.configurationOutputDir, c.Metadata.Name)
 		f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return fmt.Errorf("open file %s: %w", path, err)
