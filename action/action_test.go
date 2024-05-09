@@ -515,6 +515,7 @@ func TestNew(t *testing.T) {
 			// will verify the client is created correctly.
 			a.client = nil
 			a.Logger = nil
+			a.state = nil // TODO(jsirianni): Add state tests
 
 			require.NoError(t, err)
 			require.Equal(t, tc.expect, a)
