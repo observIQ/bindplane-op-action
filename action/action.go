@@ -339,6 +339,9 @@ func (a *Action) AutoRollout() error {
 		if err != nil {
 			return fmt.Errorf("get configuration %s: %w", c.Metadata.Name, err)
 		}
+		if configuration == nil {
+			return fmt.Errorf("configuration '%s' is nil: %s", c.Metadata.Name, BugError)
+		}
 		configurations = append(configurations, *configuration)
 	}
 
