@@ -77,9 +77,16 @@ func (c *BindPlane) ApplyFile(_ context.Context, path string) ([]*model.AnyResou
 	}
 
 	ar := &model.ApplyResponseClientSide{}
-	_, err = c.client.R().SetHeader("Content-Type", "application/json").SetBody(fileBytes).SetResult(ar).Post("/apply")
+	resp, err := c.client.R().SetHeader("Content-Type", "application/json").SetBody(fileBytes).SetResult(ar).Post("/apply")
 	if err != nil {
 		return nil, fmt.Errorf("failed to apply file: %w", err)
 	}
+
+	status := resp.StatusCode()
+	c.logger.Debug("ApplyFile response", zap.Int("status", status))
+	if status > 399 {
+		return nil, fmt.Errorf("BindPlane API returned status %d: %s", status, resp.String())
+	}
+
 	return ar.Updates, nil
 }
