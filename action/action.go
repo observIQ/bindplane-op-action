@@ -3,11 +3,13 @@ package action
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/observiq/bindplane-op-action/client"
 	"github.com/observiq/bindplane-op-action/client/config"
 	"github.com/observiq/bindplane-op-action/client/model"
 	"github.com/observiq/bindplane-op-action/client/version"
+	"gopkg.in/yaml.v2"
 
 	"go.uber.org/zap"
 )
@@ -206,7 +208,8 @@ func (a *Action) TestConnection() (version.Version, error) {
 // applied last because they will reference other resources.
 func (a *Action) Apply() error {
 	if a.destinationPath != "" {
-		err := a.apply(destination, a.destinationPath)
+		a.Logger.Info("Applying resources", zap.String("type", string(destination)), zap.String("file", a.destinationPath))
+		err := a.apply(a.destinationPath)
 		if err != nil {
 			return fmt.Errorf("destinations: %w", err)
 		}
@@ -215,7 +218,8 @@ func (a *Action) Apply() error {
 	}
 
 	if a.sourcePath != "" {
-		err := a.apply(source, a.sourcePath)
+		a.Logger.Info("Applying resources", zap.String("type", string(source)), zap.String("file", a.destinationPath))
+		err := a.apply(a.sourcePath)
 		if err != nil {
 			return fmt.Errorf("sources: %w", err)
 		}
@@ -224,7 +228,8 @@ func (a *Action) Apply() error {
 	}
 
 	if a.processorPath != "" {
-		err := a.apply(processor, a.processorPath)
+		a.Logger.Info("Applying resources", zap.String("type", string(processor)), zap.String("file", a.destinationPath))
+		err := a.apply(a.processorPath)
 		if err != nil {
 			return fmt.Errorf("processors: %w", err)
 		}
@@ -233,7 +238,8 @@ func (a *Action) Apply() error {
 	}
 
 	if a.configurationPath != "" {
-		err := a.apply(configuration, a.configurationPath)
+		a.Logger.Info("Applying resources", zap.String("type", string(configuration)), zap.String("file", a.destinationPath))
+		err := a.apply(a.configurationPath)
 		if err != nil {
 			return fmt.Errorf("configuration: %w", err)
 		}
@@ -244,11 +250,25 @@ func (a *Action) Apply() error {
 	return nil
 }
 
-// apply takes a resource type and a file path and applies it to the BindPlane API
-// If an error is found in the response status, it will be returned
-func (a *Action) apply(resourceType rType, path string) error {
-	a.Logger.Info("Applying resources", zap.String("type", string(resourceType)), zap.String("file", path))
-	resp, err := a.client.ApplyFile(context.Background(), path)
+// apply takes a file path and applies it to the BindPlane API. If an
+// error is found in the response status, it will be returned
+func (a *Action) apply(path string) error {
+	fileBytes, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("unable to read file at path %s: %w", path, err)
+	}
+
+	// TODO(jsirianni): Should we return an error for an empty file?
+	if fileBytes == nil || len(fileBytes) == 0 {
+		return nil
+	}
+
+	resources := []*model.AnyResource{}
+	if err := yaml.Unmarshal(fileBytes, &resources); err != nil {
+		return fmt.Errorf("resource file %s is malformed, failed to unmarshal yaml: %w", path, err)
+	}
+
+	resp, err := a.client.Apply(context.Background(), resources)
 	if err != nil {
 		return fmt.Errorf("client error: %w", err)
 	}

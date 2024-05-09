@@ -4,8 +4,8 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/observiq/bindplane-op-action/client/config"
@@ -64,20 +64,19 @@ func (b *BindPlane) Version(_ context.Context) (version.Version, error) {
 	return v, err
 }
 
-// ApplyFile applies a resource file to the BindPlane API
-func (c *BindPlane) ApplyFile(_ context.Context, path string) ([]*model.AnyResourceStatus, error) {
-	fileBytes, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("unable to read file at path %s: %w", path, err)
+// Apply applies a list of resources to the BindPlane API
+func (c *BindPlane) Apply(_ context.Context, resources []*model.AnyResource) ([]*model.AnyResourceStatus, error) {
+	payload := model.ApplyPayload{
+		Resources: resources,
 	}
 
-	// TODO(jsirianni): Should we return an error for an empty file?
-	if fileBytes == nil {
-		return nil, nil
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("client apply: %w", err)
 	}
 
 	ar := &model.ApplyResponseClientSide{}
-	resp, err := c.client.R().SetHeader("Content-Type", "application/json").SetBody(fileBytes).SetResult(ar).Post("/apply")
+	resp, err := c.client.R().SetHeader("Content-Type", "application/json").SetBody(data).SetResult(ar).Post("/apply")
 	if err != nil {
 		return nil, fmt.Errorf("failed to apply file: %w", err)
 	}
