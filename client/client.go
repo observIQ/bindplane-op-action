@@ -92,7 +92,7 @@ func (c *BindPlane) Apply(_ context.Context, resources []*model.AnyResource) ([]
 // Configuration queries the BindPlane API for the configurations
 func (c *BindPlane) Configuration(_ context.Context, name string) (*model.Configuration, error) {
 	pr := &model.ConfigurationResponse{}
-	resp, err := c.client.R().SetResult(pr).Get(fmt.Sprintf("/configuration/%s", name))
+	resp, err := c.client.R().SetResult(pr).Get(fmt.Sprintf("/configurations/%s", name))
 	if err != nil {
 		return nil, err
 	}

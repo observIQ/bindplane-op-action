@@ -512,7 +512,7 @@ func (a *Action) Run() error {
 
 	if a.autoRollout {
 		if err := a.AutoRollout(); err != nil {
-			return fmt.Errorf("failed to auto rollout configuration: %s", err)
+			return fmt.Errorf("failed to rollout configuration: %s", err)
 		}
 	}
 
