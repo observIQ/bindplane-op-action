@@ -237,3 +237,7 @@ const (
 	// RolloutStatusReplaced is an incomplete rollout replaced by another rollout
 	RolloutStatusReplaced RolloutStatus = 5
 )
+
+type StartRolloutPayload struct {
+	Options *RolloutOptions `json:"options"`
+}
