@@ -27,6 +27,10 @@ func validate() error {
 		return err
 	}
 
+	if err := validateFilePaths(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -111,6 +115,34 @@ func validateActionsEnvironment() error {
 
 	if os.Getenv("GITHUB_REPOSITORY") == "" {
 		return fmt.Errorf("GITHUB_REPOSITORY is not set, is the action running in a GitHub runner environment?")
+	}
+
+	return nil
+}
+
+func validateFilePaths() error {
+	if destination_path != "" {
+		if _, err := os.Stat(destination_path); os.IsNotExist(err) {
+			return fmt.Errorf("destination_path does not exist: %s", destination_path)
+		}
+	}
+
+	if source_path != "" {
+		if _, err := os.Stat(source_path); os.IsNotExist(err) {
+			return fmt.Errorf("source_path does not exist: %s", source_path)
+		}
+	}
+
+	if processor_path != "" {
+		if _, err := os.Stat(processor_path); os.IsNotExist(err) {
+			return fmt.Errorf("processor_path does not exist: %s", processor_path)
+		}
+	}
+
+	if configuration_path != "" {
+		if _, err := os.Stat(configuration_path); os.IsNotExist(err) {
+			return fmt.Errorf("configuration_path does not exist: %s", configuration_path)
+		}
 	}
 
 	return nil
