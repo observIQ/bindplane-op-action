@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/observiq/bindplane-op-action/client"
 	"github.com/observiq/bindplane-op-action/client/config"
@@ -380,7 +381,12 @@ func (a *Action) WriteBack() error {
 		"Cloning repository", zap.String("branch", a.configurationOutputBranch),
 	)
 
-	_, err := git.PlainClone("./out_repo", false, &git.CloneOptions{
+	// TODO(jsirianni): This context sets the clone timeout. This should be
+	// a configurable option.
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*120)
+	defer cancel()
+
+	repo, err := git.PlainCloneContext(ctx, "./out_repo", false, &git.CloneOptions{
 		URL:           cloneURL,
 		Progress:      os.Stdout,
 		SingleBranch:  true,
@@ -390,9 +396,20 @@ func (a *Action) WriteBack() error {
 		return fmt.Errorf("clone repository: %w", err)
 	}
 
-	a.Logger.Info(
-		"Repository cloned", zap.String("branch", a.configurationOutputBranch),
-	)
+	tree, err := repo.Worktree()
+	if err != nil {
+		return fmt.Errorf("get worktree: %w", err)
+	}
+
+	status, err := tree.Status()
+	if err != nil {
+		return fmt.Errorf("get worktree status: %w", err)
+	}
+
+	if status.IsClean() {
+		a.Logger.Info("No changes to write back")
+		return nil
+	}
 
 	return nil
 }
