@@ -14,6 +14,10 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	BugError = "This is a bug with the action, please reach out to support or file an issue on Github https://github.com/observIQ/bindplane-op-action/issues"
+)
+
 type rType string
 
 const (
@@ -282,11 +286,10 @@ func (a *Action) apply(path string) error {
 		return fmt.Errorf("client error: %w", err)
 	}
 
-	// TODO(jsirianni): Probably do not need this, even debug
-	// TODO(jsirianni): If response is nil, should we fail with
-	// an error indicating that this is a bug with the action or bindplane, considering
-	// client.Apply should return an error if something went wrong?
-	a.Logger.Debug("Resource response", zap.Any("response", resp))
+	if resp == nil {
+		// return error indicating that this is a bug with bindplane or the action
+		return fmt.Errorf("nil response from client: %s", BugError)
+	}
 
 	for _, s := range resp {
 		name := s.Resource.Metadata.Name

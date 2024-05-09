@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+
+	"github.com/observiq/bindplane-op-action/action"
 )
 
 func validate() error {
@@ -84,7 +86,7 @@ func validateWriteBack() error {
 	// it means we failed to set it in parseArgs or failed to validate
 	// that target_branch was set.
 	if configuration_output_branch == "" {
-		return fmt.Errorf("configuration_output_branch is not set. %s", bugError)
+		return fmt.Errorf("configuration_output_branch is not set. %s", action.BugError)
 	}
 
 	// If a token is not set, github_url is required because it can contain

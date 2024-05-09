@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	"github.com/observiq/bindplane-op-action/action"
 )
 
 // parseArgs parses the arguments passed to the action. The action will always
@@ -16,7 +18,7 @@ func parseArgs() error {
 	// Add one to account for arg 0 being the binary name
 	count := argCount + 1
 	if len(args) != count {
-		return fmt.Errorf("Not enough arguments, expected 17, got %d. %s.", len(args), bugError)
+		return fmt.Errorf("Not enough arguments, expected 17, got %d. %s.", len(args), action.BugError)
 	}
 
 	// First arg is always the binary name, so we skip it. We could
