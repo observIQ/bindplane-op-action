@@ -9,8 +9,8 @@ import (
 // state can be used to cache data during the
 // lifecycle of the action
 type State interface {
-	// Configurations returns all configurations
-	Configurations() map[string]model.AnyResource
+	// Configurations returns all configuration names
+	ConfigurationNames() []string
 
 	// SetConfiguration inserts a configuration into the state
 	SetConfiguration(name string, configuration model.AnyResource)
@@ -36,10 +36,15 @@ func NewMemory() *Memory {
 }
 
 // Configurations returns the configurations map
-func (m *Memory) Configurations() map[string]model.AnyResource {
+func (m *Memory) ConfigurationNames() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	return m.configurations
+
+	names := make([]string, 0, len(m.configurations))
+	for name := range m.configurations {
+		names = append(names, name)
+	}
+	return names
 }
 
 // SetConfigurations sets the configurations for a given name. This will overwrite

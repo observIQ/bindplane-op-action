@@ -334,7 +334,7 @@ func (a *Action) apply(path string) error {
 // AutoRollout TODO
 func (a *Action) AutoRollout() error {
 	configurations := []model.Configuration{}
-	for name, _ := range a.state.Configurations() {
+	for _, name := range a.state.ConfigurationNames() {
 		configuration, err := a.client.Configuration(context.Background(), name)
 		if err != nil {
 			return fmt.Errorf("get configuration %s: %w", name, err)
@@ -412,7 +412,7 @@ func (a *Action) WriteBack() error {
 	}
 
 	configurations := []model.Configuration{}
-	for name, _ := range a.state.Configurations() {
+	for _, name := range a.state.ConfigurationNames() {
 		configuration, err := a.client.Configuration(context.Background(), name)
 		if err != nil {
 			return fmt.Errorf("get configuration %s: %w", name, err)
