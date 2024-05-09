@@ -319,6 +319,7 @@ func (a *Action) apply(path string) error {
 		// so we can use it for auto rollout
 		if kind == string(configuration) {
 			a.state.configurations = append(a.state.configurations, s.Resource)
+			a.Logger.Debug("Configuration resource added to state", zap.String("name", name))
 		}
 
 		switch status {
