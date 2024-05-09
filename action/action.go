@@ -247,11 +247,14 @@ func (a *Action) Apply() error {
 // apply takes a resource type and a file path and applies it to the BindPlane API
 // If an error is found in the response status, it will be returned
 func (a *Action) apply(resourceType rType, path string) error {
-	a.Logger.Info("Applying resource", zap.String("type", string(resourceType)), zap.String("file", path))
+	a.Logger.Info("Applying resources", zap.String("type", string(resourceType)), zap.String("file", path))
 	resp, err := a.client.ApplyFile(context.Background(), path)
 	if err != nil {
 		return fmt.Errorf("client error: %w", err)
 	}
+
+	// TODO(jsirianni): Probably do not need this, even debug
+	a.Logger.Debug("Resource response", zap.Any("response", resp))
 
 	for _, s := range resp {
 		name := s.Resource.Metadata.Name

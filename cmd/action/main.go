@@ -56,7 +56,7 @@ func main() {
 	}
 
 	zapConf := zap.NewProductionConfig()
-	zapConf.Level.SetLevel(zap.InfoLevel)
+	zapConf.Level.SetLevel(zap.DebugLevel) // TODO(jsirianni): Expose this as an option
 	zapConf.OutputPaths = []string{"stdout"}
 	zapConf.DisableStacktrace = true
 	logger, err := zapConf.Build()
