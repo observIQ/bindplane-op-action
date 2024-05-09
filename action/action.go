@@ -475,7 +475,11 @@ func (a *Action) WriteBack() error {
 		return fmt.Errorf("commit changes: %w", err)
 	}
 
-	if err = repo.Push(nil); err != nil {
+	pushOpts := &git.PushOptions{
+		RemoteName: "origin",
+	}
+
+	if err = repo.Push(pushOpts); err != nil {
 		return fmt.Errorf("push changes: %w", err)
 	}
 
