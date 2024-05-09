@@ -82,7 +82,6 @@ func (c *BindPlane) Apply(_ context.Context, resources []*model.AnyResource) ([]
 	}
 
 	status := resp.StatusCode()
-	c.logger.Debug("ApplyFile response", zap.Int("status", status))
 	if status > 399 {
 		return nil, fmt.Errorf("BindPlane API returned status %d: %s", status, resp.String())
 	}
