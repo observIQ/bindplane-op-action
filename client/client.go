@@ -111,8 +111,9 @@ func (c *BindPlane) Configurations(_ context.Context) ([]*model.Configuration, e
 func (c *BindPlane) StartRollout(name string) error {
 	endpoint := fmt.Sprintf("/rollouts/%s/start", name)
 
-	body := model.StartRolloutPayload{}
-	body.Options = &model.RolloutOptions{}
+	body := model.StartRolloutPayload{
+		Options: &model.RolloutOptions{},
+	}
 
 	resp, err := c.client.R().
 		SetBody(body).
