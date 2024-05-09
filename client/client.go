@@ -5,9 +5,11 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/observiq/bindplane-op-action/client/config"
+	"github.com/observiq/bindplane-op-action/client/model"
 	"github.com/observiq/bindplane-op-action/client/version"
 
 	"github.com/go-resty/resty/v2"
@@ -60,4 +62,24 @@ func (b *BindPlane) Version(_ context.Context) (version.Version, error) {
 	v := version.Version{}
 	_, err := b.client.R().SetResult(&v).Get("/version")
 	return v, err
+}
+
+// ApplyFile applies a resource file to the BindPlane API
+func (c *BindPlane) ApplyFile(_ context.Context, path string) ([]*model.AnyResourceStatus, error) {
+	fileBytes, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("unable to read file at path %s: %w", path, err)
+	}
+
+	// TODO(jsirianni): Should we return an error for an empty file?
+	if fileBytes == nil {
+		return nil, nil
+	}
+
+	ar := &model.ApplyResponseClientSide{}
+	_, err = c.client.R().SetHeader("Content-Type", "application/json").SetBody(fileBytes).SetResult(ar).Post("/apply")
+	if err != nil {
+		return nil, fmt.Errorf("failed to apply file: %w", err)
+	}
+	return ar.Updates, nil
 }

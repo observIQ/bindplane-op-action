@@ -6,9 +6,19 @@ import (
 
 	"github.com/observiq/bindplane-op-action/client"
 	"github.com/observiq/bindplane-op-action/client/config"
+	"github.com/observiq/bindplane-op-action/client/model"
 	"github.com/observiq/bindplane-op-action/client/version"
 
 	"go.uber.org/zap"
+)
+
+type rType string
+
+const (
+	destination   rType = "destination"
+	source        rType = "source"
+	processor     rType = "processor"
+	configuration rType = "configuration"
 )
 
 // Option is a function that configures an Action option
@@ -190,8 +200,66 @@ func (a *Action) TestConnection() (version.Version, error) {
 	return v, err
 }
 
+// Apply applies destinations, sources, processors, and configurations
+// in that order. It is important to apply destinations first, followed
+// by resource library sources and processors. Configurations should be
+// applied last because they will reference other resources.
 func (a *Action) Apply() error {
-	// TODO: Apply destinations, sources, processors, and configuration
+	if err := a.apply(destination, a.destinationPath); err != nil {
+		return fmt.Errorf("failed to apply destinations: %w", err)
+	}
+
+	if err := a.apply(source, a.sourcePath); err != nil {
+		return fmt.Errorf("failed to apply sources: %w", err)
+	}
+
+	if err := a.apply(processor, a.processorPath); err != nil {
+		return fmt.Errorf("failed to apply processors: %w", err)
+	}
+
+	if err := a.apply(configuration, a.configurationPath); err != nil {
+		return fmt.Errorf("failed to apply configuration: %w", err)
+	}
+
+	return nil
+}
+
+// apply takes a resource type and a file path and applies it to the BindPlane API
+// If an error is found in the response status, it will be returned
+func (a *Action) apply(resourceType rType, path string) error {
+	a.Logger.Info("Applying resource", zap.String("type", string(resourceType)), zap.String("file", path))
+	resp, err := a.client.ApplyFile(context.Background(), path)
+	if err != nil {
+		return fmt.Errorf("failed to apply resource: %w", err)
+	}
+
+	for _, s := range resp {
+		name := s.Resource.Metadata.Name
+		id := s.Resource.Metadata.ID
+		kind := s.Resource.Kind
+		status := s.Status
+		a.Logger.Info(
+			"Resource applied",
+			zap.String("name", name),
+			zap.String("id", id),
+			zap.String("kind", kind),
+			zap.String("status", string(status)),
+		)
+
+		switch status {
+		case model.StatusUnchanged, model.StatusConfigured, model.StatusCreated:
+			continue
+		case model.StatusInvalid:
+			return fmt.Errorf("failed to apply resource, invalid resource: %s: %s", name, s.Reason)
+		case model.StatusError:
+			return fmt.Errorf("failed to apply resource, error: %s: %s", name, s.Reason)
+		case model.StatusForbidden:
+			return fmt.Errorf("failed to apply resource, forbidden: %s: %s", name, s.Reason)
+		default:
+			return fmt.Errorf("failed to apply resource, unexpected status: %s", status)
+		}
+	}
+
 	return nil
 }
 
