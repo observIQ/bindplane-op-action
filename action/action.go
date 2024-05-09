@@ -322,7 +322,35 @@ func (a *Action) apply(path string) error {
 	return nil
 }
 
+// AutoRollout TODO
 func (a *Action) AutoRollout() error {
+	// TODO(jsirianni): This should only be configurations managed
+	// by a.configurationsPath
+	configs, err := a.client.Configurations(context.Background())
+	if err != nil {
+		return fmt.Errorf("get configurations: %w", err)
+	}
+
+	for _, c := range configs {
+		status, err := a.client.RolloutStatus(c.Metadata.Name)
+		if err != nil {
+			return fmt.Errorf("rollout status: %w", err)
+		}
+
+		if status.Status.Rollout.Status == model.RolloutStatusPending {
+			a.Logger.Info("Pending rollout", zap.String("name", c.Metadata.Name))
+		} else {
+			a.Logger.Info("No pending rollout", zap.String("name", c.Metadata.Name))
+			continue
+		}
+
+		a.Logger.Info("Starting rollout", zap.String("name", c.Metadata.Name))
+
+		if err := a.client.StartRollout(c.Metadata.Name); err != nil {
+			return fmt.Errorf("start rollout: %w", err)
+		}
+	}
+
 	return nil
 }
 

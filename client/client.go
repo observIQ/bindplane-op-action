@@ -88,3 +88,59 @@ func (c *BindPlane) Apply(_ context.Context, resources []*model.AnyResource) ([]
 
 	return ar.Updates, nil
 }
+
+// Configurations queries the BindPlane API for the configurations
+func (c *BindPlane) Configurations(_ context.Context) ([]*model.Configuration, error) {
+	pr := &model.ConfigurationsResponse{}
+	resp, err := c.client.R().SetResult(pr).Get("/configurations")
+	if err != nil {
+		return nil, err
+	}
+
+	status := resp.StatusCode()
+	if status > 399 {
+		return nil, fmt.Errorf("BindPlane API returned status %d: %s", status, resp.String())
+	}
+
+	return pr.Configurations, nil
+}
+
+// StartRollout starts a rollout by name
+// NOTE: Does not use context or rollout options unlike the original client implementation
+// NOTE: Returns only an error, not a configuration
+func (c *BindPlane) StartRollout(name string) error {
+	endpoint := fmt.Sprintf("/rollouts/%s/start", name)
+
+	resp, err := c.client.R().
+		Post(endpoint)
+	if err != nil {
+		return err
+	}
+
+	status := resp.StatusCode()
+	if status > 399 {
+		return fmt.Errorf("BindPlane API returned status %d: %s", status, resp.String())
+	}
+
+	return nil
+}
+
+// RolloutStatus queries the BindPlane API for the status of a rollout by configuration name
+func (c *BindPlane) RolloutStatus(name string) (*model.Configuration, error) {
+	var response model.ConfigurationResponse
+	endpoint := fmt.Sprintf("/rollouts/%s/status", name)
+
+	resp, err := c.client.R().
+		SetResult(&response).
+		Get(endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	status := resp.StatusCode()
+	if status > 399 {
+		return nil, fmt.Errorf("BindPlane API returned status %d: %s", status, resp.String())
+	}
+
+	return response.Configuration, nil
+}
