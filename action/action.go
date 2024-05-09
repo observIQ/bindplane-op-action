@@ -268,6 +268,7 @@ func (a *Action) apply(resourceType rType, path string) error {
 
 		switch status {
 		case model.StatusUnchanged, model.StatusConfigured, model.StatusCreated:
+			a.Logger.Info("Applied resource", zap.String("name", name), zap.String("status", string(status)))
 			continue
 		case model.StatusInvalid:
 			return fmt.Errorf("invalid resource: %s: %s", name, s.Reason)
