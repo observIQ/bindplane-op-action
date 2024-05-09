@@ -401,6 +401,28 @@ func (a *Action) WriteBack() error {
 		return fmt.Errorf("get worktree: %w", err)
 	}
 
+	configurations, err := a.client.Configurations(context.Background())
+	if err != nil {
+		return fmt.Errorf("get configurations: %w", err)
+	}
+
+	for _, c := range configurations {
+		path := fmt.Sprintf("./out_repo/%s.yaml", c.Metadata.Name)
+		f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			return fmt.Errorf("open file %s: %w", path, err)
+		}
+
+		encoder := yaml.NewEncoder(f)
+		if err := encoder.Encode(c); err != nil {
+			return fmt.Errorf("encode configuration %s: %w", c.Metadata.Name, err)
+		}
+
+		if err := encoder.Close(); err != nil {
+			return fmt.Errorf("close encoder: %w", err)
+		}
+	}
+
 	status, err := tree.Status()
 	if err != nil {
 		return fmt.Errorf("get worktree status: %w", err)
@@ -410,6 +432,9 @@ func (a *Action) WriteBack() error {
 		a.Logger.Info("No changes to write back")
 		return nil
 	}
+
+	a.Logger.Info("Detected changes, writing back to repository")
+	a.Logger.Info(status.String())
 
 	return nil
 }
