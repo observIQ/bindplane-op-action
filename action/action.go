@@ -205,20 +205,40 @@ func (a *Action) TestConnection() (version.Version, error) {
 // by resource library sources and processors. Configurations should be
 // applied last because they will reference other resources.
 func (a *Action) Apply() error {
-	if err := a.apply(destination, a.destinationPath); err != nil {
-		return fmt.Errorf("destinations: %w", err)
+	if a.destinationPath != "" {
+		err := a.apply(destination, a.destinationPath)
+		if err != nil {
+			return fmt.Errorf("destinations: %w", err)
+		}
+	} else {
+		a.Logger.Info("No destination path provided, skipping destinations")
 	}
 
-	if err := a.apply(source, a.sourcePath); err != nil {
-		return fmt.Errorf("sources: %w", err)
+	if a.sourcePath == "" {
+		err := a.apply(source, a.sourcePath)
+		if err != nil {
+			return fmt.Errorf("sources: %w", err)
+		}
+	} else {
+		a.Logger.Info("No source path provided, skipping sources")
 	}
 
-	if err := a.apply(processor, a.processorPath); err != nil {
-		return fmt.Errorf("processors: %w", err)
+	if a.processorPath == "" {
+		err := a.apply(processor, a.processorPath)
+		if err != nil {
+			return fmt.Errorf("processors: %w", err)
+		}
+	} else {
+		a.Logger.Info("No processor path provided, skipping processors")
 	}
 
-	if err := a.apply(configuration, a.configurationPath); err != nil {
-		return fmt.Errorf("configuration: %w", err)
+	if a.configurationPath == "" {
+		err := a.apply(configuration, a.configurationPath)
+		if err != nil {
+			return fmt.Errorf("configuration: %w", err)
+		}
+	} else {
+		a.Logger.Info("No configuration path provided, skipping configuration")
 	}
 
 	return nil
