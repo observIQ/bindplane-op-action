@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/observiq/bindplane-op-action/action/state"
 	"github.com/observiq/bindplane-op-action/client"
 	"github.com/observiq/bindplane-op-action/client/config"
 	"github.com/observiq/bindplane-op-action/client/model"
@@ -154,9 +155,10 @@ func New(logger *zap.Logger, opts ...Option) (*Action, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create BindPlane client: %w", err)
 	}
-	action.client = c
 
+	action.client = c
 	action.Logger = logger
+	action.state = state.NewMemory()
 
 	return action, nil
 }
@@ -195,11 +197,7 @@ type Action struct {
 	client *client.BindPlane
 
 	// State holds the current state of the action
-	state state
-}
-
-type state struct {
-	configurations []model.AnyResource
+	state state.State
 }
 
 // TestConnection wraps the BindPlane client's Version method
@@ -311,7 +309,7 @@ func (a *Action) apply(path string) error {
 		// Attach the configuration resource to the state
 		// so we can use it for auto rollout
 		if kind == string(model.KindConfiguration) {
-			a.state.configurations = append(a.state.configurations, s.Resource)
+			a.state.SetConfiguration(s.Resource.Metadata.Name, s.Resource)
 			a.Logger.Debug("Configuration resource added to state", zap.String("name", name))
 		}
 
@@ -336,7 +334,7 @@ func (a *Action) apply(path string) error {
 // AutoRollout TODO
 func (a *Action) AutoRollout() error {
 	configurations := []model.Configuration{}
-	for _, c := range a.state.configurations {
+	for _, c := range a.state.Configurations() {
 		configuration, err := a.client.Configuration(context.Background(), c.Metadata.Name)
 		if err != nil {
 			return fmt.Errorf("get configuration %s: %w", c.Metadata.Name, err)
@@ -411,7 +409,7 @@ func (a *Action) WriteBack() error {
 	}
 
 	configurations := []model.Configuration{}
-	for _, c := range a.state.configurations {
+	for _, c := range a.state.Configurations() {
 		configuration, err := a.client.Configuration(context.Background(), c.Metadata.Name)
 		if err != nil {
 			return fmt.Errorf("get configuration %s: %w", c.Metadata.Name, err)
