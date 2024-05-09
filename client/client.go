@@ -112,18 +112,7 @@ func (c *BindPlane) StartRollout(name string) error {
 	endpoint := fmt.Sprintf("/rollouts/%s/start", name)
 
 	body := model.StartRolloutPayload{}
-
-	// TODO(jsirianni): What should these be?
-	body.Options = &model.RolloutOptions{
-		StartAutomatically: true,
-		RollbackOnFailure:  false,
-		PhaseAgentCount: model.PhaseAgentCount{
-			Initial:    1,
-			Multiplier: 1,
-			Maximum:    1,
-		},
-		MaxErrors: 0,
-	}
+	body.Options = &model.RolloutOptions{}
 
 	resp, err := c.client.R().
 		SetBody(body).
