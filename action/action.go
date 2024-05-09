@@ -15,6 +15,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"go.uber.org/zap"
 )
 
@@ -458,7 +459,27 @@ func (a *Action) WriteBack() error {
 	a.Logger.Info("Detected changes, writing back to repository")
 	for path := range status {
 		a.Logger.Info("file changed", zap.String("path", path))
+		tree.Add(path)
 	}
+
+	commitMessage := "BindPlane OP Action: Update OTEL Configs"
+	commitOptions := &git.CommitOptions{
+		Author: &object.Signature{
+			Name:  "bindplane-op-action",
+			Email: "bindplane-op-action",
+			When:  time.Now(),
+		},
+	}
+	_, err = tree.Commit(commitMessage, commitOptions)
+	if err != nil {
+		return fmt.Errorf("commit changes: %w", err)
+	}
+
+	if err = repo.Push(nil); err != nil {
+		return fmt.Errorf("push changes: %w", err)
+	}
+
+	a.Logger.Info("Changes written back to repository")
 
 	return nil
 }
