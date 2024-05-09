@@ -214,7 +214,7 @@ func (a *Action) Apply() error {
 		a.Logger.Info("No destination path provided, skipping destinations")
 	}
 
-	if a.sourcePath == "" {
+	if a.sourcePath != "" {
 		err := a.apply(source, a.sourcePath)
 		if err != nil {
 			return fmt.Errorf("sources: %w", err)
@@ -223,7 +223,7 @@ func (a *Action) Apply() error {
 		a.Logger.Info("No source path provided, skipping sources")
 	}
 
-	if a.processorPath == "" {
+	if a.processorPath != "" {
 		err := a.apply(processor, a.processorPath)
 		if err != nil {
 			return fmt.Errorf("processors: %w", err)
@@ -232,7 +232,7 @@ func (a *Action) Apply() error {
 		a.Logger.Info("No processor path provided, skipping processors")
 	}
 
-	if a.configurationPath == "" {
+	if a.configurationPath != "" {
 		err := a.apply(configuration, a.configurationPath)
 		if err != nil {
 			return fmt.Errorf("configuration: %w", err)
