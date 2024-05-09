@@ -104,8 +104,8 @@ type ConfigurationsResponse struct {
 type Configuration struct {
 	// ResourceMeta contains the metadata for this resource
 	ResourceMeta `yaml:",inline" mapstructure:",squash"`
-	// // Spec contains the spec for the Configuration
-	// Spec                            ConfigurationSpec `json:"spec" yaml:"spec" mapstructure:"spec"`
+	// Spec contains the spec for the Configuration
+	Spec                            ConfigurationSpec `json:"spec" yaml:"spec" mapstructure:"spec"`
 	StatusType[ConfigurationStatus] `yaml:",inline" mapstructure:",squash"`
 }
 
@@ -240,4 +240,55 @@ const (
 
 type StartRolloutPayload struct {
 	Options *RolloutOptions `json:"options"`
+}
+
+type ConfigurationSpec struct {
+	ContentType string `json:"contentType" yaml:"contentType" mapstructure:"contentType"`
+	// NOTE: MeasurementInterval is deprecated and will be ignored.
+	MeasurementInterval string                  `json:"measurementInterval" yaml:"measurementInterval" mapstructure:"measurementInterval"`
+	Raw                 string                  `json:"raw,omitempty" yaml:"raw,omitempty" mapstructure:"raw"`
+	Sources             []ResourceConfiguration `json:"sources,omitempty" yaml:"sources,omitempty" mapstructure:"sources"`
+	Destinations        []ResourceConfiguration `json:"destinations,omitempty" yaml:"destinations,omitempty" mapstructure:"destinations"`
+	Extensions          []ResourceConfiguration `json:"extensions,omitempty" yaml:"extensions,omitempty" mapstructure:"extensions"`
+	Selector            AgentSelector           `json:"selector" yaml:"selector" mapstructure:"selector"`
+	Rollout             ResourceConfiguration   `json:"rollout,omitempty" yaml:"rollout,omitempty" mapstructure:"rollout"`
+}
+
+type ResourceConfiguration struct {
+	// ID will be generated and is used to uniquely identify the resource
+	ID string `json:"id,omitempty" yaml:"id,omitempty" mapstructure:"id"`
+
+	// Name must be specified if this is a reference to another resource by name
+	Name string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name"`
+
+	// DisplayName is a friendly name of the resource that will be displayed in the UI
+	DisplayName string `json:"displayName,omitempty" yaml:"displayName,omitempty" mapstructure:"displayName"`
+
+	// ParameterizedSpec contains the definition of an embedded resource if this is not a reference to another resource
+	ParameterizedSpec `yaml:",inline" mapstructure:",squash"`
+}
+
+type AgentSelector struct {
+	MatchLabels `json:"matchLabels" yaml:"matchLabels" mapstructure:"matchLabels"`
+}
+
+type ParameterizedSpec struct {
+	Type       string      `yaml:"type,omitempty" json:"type,omitempty" mapstructure:"type"`
+	Parameters []Parameter `yaml:"parameters,omitempty" json:"parameters,omitempty" mapstructure:"parameters"`
+
+	Processors []ResourceConfiguration `yaml:"processors,omitempty" json:"processors,omitempty" mapstructure:"processors"`
+	Disabled   bool                    `yaml:"disabled,omitempty" json:"disabled,omitempty" mapstructure:"disabled"`
+}
+
+type MatchLabels map[string]string
+
+type Parameter struct {
+	// Name is the name of the parameter
+	Name string `json:"name" yaml:"name" mapstructure:"name"`
+
+	// Value could be any of the following: string, bool, int, enum (string), float, []string, map
+	Value interface{} `json:"value" yaml:"value" mapstructure:"value"`
+
+	// Sensitive will be true if the value is sensitive and should be masked when printed.
+	Sensitive bool `json:"sensitive,omitempty" yaml:"sensitive,omitempty" mapstructure:"sensitive"`
 }
