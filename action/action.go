@@ -200,6 +200,13 @@ type Action struct {
 	config config.Config
 
 	client *client.BindPlane
+
+	// State holds the current state of the action
+	state state
+}
+
+type state struct {
+	configurations []model.AnyResource
 }
 
 // TestConnection wraps the BindPlane client's Version method
@@ -292,7 +299,6 @@ func (a *Action) apply(path string) error {
 	}
 
 	if resp == nil {
-		// return error indicating that this is a bug with bindplane or the action
 		return fmt.Errorf("nil response from client: %s", BugError)
 	}
 
@@ -308,6 +314,12 @@ func (a *Action) apply(path string) error {
 			zap.String("kind", kind),
 			zap.String("status", string(status)),
 		)
+
+		// Attach the configuration resource to the state
+		// so we can use it for auto rollout
+		if kind == string(configuration) {
+			a.state.configurations = append(a.state.configurations, s.Resource)
+		}
 
 		switch status {
 		case model.StatusUnchanged, model.StatusConfigured, model.StatusCreated:
@@ -329,14 +341,16 @@ func (a *Action) apply(path string) error {
 
 // AutoRollout TODO
 func (a *Action) AutoRollout() error {
-	// TODO(jsirianni): This should only be configurations managed
-	// by a.configurationsPath
-	configs, err := a.client.Configurations(context.Background())
-	if err != nil {
-		return fmt.Errorf("get configurations: %w", err)
+	configurations := []model.Configuration{}
+	for _, c := range a.state.configurations {
+		configuration, err := a.client.Configuration(context.Background(), c.Metadata.Name)
+		if err != nil {
+			return fmt.Errorf("get configuration %s: %w", c.Metadata.Name, err)
+		}
+		configurations = append(configurations, *configuration)
 	}
 
-	for _, c := range configs {
+	for _, c := range configurations {
 		status, err := a.client.RolloutStatus(c.Metadata.Name)
 		if err != nil {
 			return fmt.Errorf("rollout status: %w", err)
@@ -402,9 +416,13 @@ func (a *Action) WriteBack() error {
 		return fmt.Errorf("get worktree: %w", err)
 	}
 
-	configurations, err := a.client.Configurations(context.Background())
-	if err != nil {
-		return fmt.Errorf("get configurations: %w", err)
+	configurations := []model.Configuration{}
+	for _, c := range a.state.configurations {
+		configuration, err := a.client.Configuration(context.Background(), c.Metadata.Name)
+		if err != nil {
+			return fmt.Errorf("get configuration %s: %w", c.Metadata.Name, err)
+		}
+		configurations = append(configurations, *configuration)
 	}
 
 	for _, c := range configurations {
