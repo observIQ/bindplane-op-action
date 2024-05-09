@@ -407,6 +407,28 @@ func (a *Action) WriteBack() error {
 	}
 
 	for _, c := range configurations {
+		// Cleanup metadata before writing back, this is the same
+		// as the CLI's get --export option.
+		c.Metadata.Hash = ""
+		c.Metadata.Version = 0
+		c.Metadata.DateModified = nil
+
+		destinations := []model.ResourceConfiguration{}
+		for _, d := range c.Spec.Destinations {
+			d.Type = model.TrimVersion(d.Type)
+			d.Name = model.TrimVersion(d.Name)
+			destinations = append(destinations, d)
+		}
+		c.Spec.Destinations = destinations
+
+		sources := []model.ResourceConfiguration{}
+		for _, s := range c.Spec.Sources {
+			s.Type = model.TrimVersion(s.Type)
+			s.Name = model.TrimVersion(s.Name)
+			sources = append(sources, s)
+		}
+		c.Spec.Sources = sources
+
 		path := fmt.Sprintf("./out_repo/%s.yaml", c.Metadata.Name)
 		f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
@@ -425,7 +447,7 @@ func (a *Action) WriteBack() error {
 
 	status, err := tree.Status()
 	if err != nil {
-		return fmt.Errorf("get worktree status: %w", err)
+		return fmt.Errorf("get work tree status: %w", err)
 	}
 
 	if status.IsClean() {
@@ -434,7 +456,9 @@ func (a *Action) WriteBack() error {
 	}
 
 	a.Logger.Info("Detected changes, writing back to repository")
-	a.Logger.Info(status.String())
+	for path := range status {
+		a.Logger.Info("file changed", zap.String("path", path))
+	}
 
 	return nil
 }
