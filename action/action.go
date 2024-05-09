@@ -334,13 +334,13 @@ func (a *Action) apply(path string) error {
 // AutoRollout TODO
 func (a *Action) AutoRollout() error {
 	configurations := []model.Configuration{}
-	for _, c := range a.state.Configurations() {
-		configuration, err := a.client.Configuration(context.Background(), c.Metadata.Name)
+	for name, _ := range a.state.Configurations() {
+		configuration, err := a.client.Configuration(context.Background(), name)
 		if err != nil {
-			return fmt.Errorf("get configuration %s: %w", c.Metadata.Name, err)
+			return fmt.Errorf("get configuration %s: %w", name, err)
 		}
 		if configuration == nil {
-			return fmt.Errorf("configuration '%s' is nil: %s", c.Metadata.Name, BugError)
+			return fmt.Errorf("configuration '%s' is nil: %s", name, BugError)
 		}
 		configurations = append(configurations, *configuration)
 	}
@@ -412,10 +412,13 @@ func (a *Action) WriteBack() error {
 	}
 
 	configurations := []model.Configuration{}
-	for _, c := range a.state.Configurations() {
-		configuration, err := a.client.Configuration(context.Background(), c.Metadata.Name)
+	for name, _ := range a.state.Configurations() {
+		configuration, err := a.client.Configuration(context.Background(), name)
 		if err != nil {
-			return fmt.Errorf("get configuration %s: %w", c.Metadata.Name, err)
+			return fmt.Errorf("get configuration %s: %w", name, err)
+		}
+		if configuration == nil {
+			return fmt.Errorf("configuration '%s' is nil: %s", name, BugError)
 		}
 		configurations = append(configurations, *configuration)
 	}
