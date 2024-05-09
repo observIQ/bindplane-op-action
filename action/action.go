@@ -25,13 +25,6 @@ const (
 
 type rType string
 
-const (
-	destination   rType = "destination"
-	source        rType = "source"
-	processor     rType = "processor"
-	configuration rType = "configuration"
-)
-
 // Option is a function that configures an Action option
 type Option func(*Action)
 
@@ -224,7 +217,7 @@ func (a *Action) TestConnection() (version.Version, error) {
 // applied last because they will reference other resources.
 func (a *Action) Apply() error {
 	if a.destinationPath != "" {
-		a.Logger.Info("Applying resources", zap.String("type", string(destination)), zap.String("file", a.destinationPath))
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindDestination)), zap.String("file", a.destinationPath))
 		err := a.apply(a.destinationPath)
 		if err != nil {
 			return fmt.Errorf("destinations: %w", err)
@@ -234,7 +227,7 @@ func (a *Action) Apply() error {
 	}
 
 	if a.sourcePath != "" {
-		a.Logger.Info("Applying resources", zap.String("type", string(source)), zap.String("file", a.destinationPath))
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindSource)), zap.String("file", a.destinationPath))
 		err := a.apply(a.sourcePath)
 		if err != nil {
 			return fmt.Errorf("sources: %w", err)
@@ -244,7 +237,7 @@ func (a *Action) Apply() error {
 	}
 
 	if a.processorPath != "" {
-		a.Logger.Info("Applying resources", zap.String("type", string(processor)), zap.String("file", a.destinationPath))
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindProcessor)), zap.String("file", a.destinationPath))
 		err := a.apply(a.processorPath)
 		if err != nil {
 			return fmt.Errorf("processors: %w", err)
@@ -254,7 +247,7 @@ func (a *Action) Apply() error {
 	}
 
 	if a.configurationPath != "" {
-		a.Logger.Info("Applying resources", zap.String("type", string(configuration)), zap.String("file", a.destinationPath))
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindConfiguration)), zap.String("file", a.destinationPath))
 		err := a.apply(a.configurationPath)
 		if err != nil {
 			return fmt.Errorf("configuration: %w", err)
@@ -317,7 +310,7 @@ func (a *Action) apply(path string) error {
 
 		// Attach the configuration resource to the state
 		// so we can use it for auto rollout
-		if kind == string(configuration) {
+		if kind == string(model.KindConfiguration) {
 			a.state.configurations = append(a.state.configurations, s.Resource)
 			a.Logger.Debug("Configuration resource added to state", zap.String("name", name))
 		}
