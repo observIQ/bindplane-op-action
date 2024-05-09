@@ -258,11 +258,6 @@ func (a *Action) apply(path string) error {
 		return fmt.Errorf("unable to read file at path %s: %w", path, err)
 	}
 
-	if f == nil || len(f) == 0 {
-		a.Logger.Warn("Resource file is empty, skipping apply", zap.String("path", path))
-		return nil
-	}
-
 	resources := []*model.AnyResource{}
 	decoder := yaml.NewDecoder(f)
 	for {
@@ -275,6 +270,11 @@ func (a *Action) apply(path string) error {
 			return fmt.Errorf("resource file %s is malformed, failed to unmarshal yaml: %w", path, err)
 		}
 		resources = append(resources, &resource)
+	}
+
+	if len(resources) == 0 {
+		a.Logger.Warn("No resources found in file", zap.String("file", path))
+		return nil
 	}
 
 	resp, err := a.client.Apply(context.Background(), resources)
