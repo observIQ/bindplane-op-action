@@ -6,6 +6,7 @@ import (
 
 	"github.com/observiq/bindplane-op-action/action"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // argCount is the number of arguments passed to the action, and does not
@@ -59,6 +60,9 @@ func main() {
 	zapConf.Level.SetLevel(zap.DebugLevel) // TODO(jsirianni): Expose this as an option
 	zapConf.OutputPaths = []string{"stdout"}
 	zapConf.DisableStacktrace = true
+	zapConf.DisableCaller = true
+	zapConf.EncoderConfig.TimeKey = "time"
+	zapConf.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	logger, err := zapConf.Build()
 	if err != nil {
 		fmt.Printf("failed to create logger: %s\n", err)
