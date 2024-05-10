@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/observiq/bindplane-op-action/action"
 	"go.uber.org/zap"
@@ -69,6 +70,16 @@ func main() {
 		os.Exit(exitLoggerInitError)
 	}
 
+	branch := strings.Split(os.Getenv("GITHUB_REF"), "/")[2]
+	if branch != target_branch {
+		logger.Info(
+			"Skipping action, branch does not match target branch",
+			zap.String("branch", branch),
+			zap.String("target_branch", target_branch),
+		)
+		os.Exit(0)
+	}
+
 	action, err := action.New(
 		logger,
 
@@ -81,7 +92,6 @@ func main() {
 
 		// Base action options for reading resources
 		// from the repo, to apply to bindplane
-		action.WithTargetBranch(target_branch),
 		action.WithDestinationPath(destination_path),
 		action.WithSourcePath(source_path),
 		action.WithProcessorPath(processor_path),

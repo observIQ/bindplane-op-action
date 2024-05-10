@@ -67,13 +67,6 @@ func WithTLSCACert(c string) Option {
 	}
 }
 
-// WithTargetBranch sets the branch to read resources from
-func WithTargetBranch(b string) Option {
-	return func(a *Action) {
-		a.targetBranch = b
-	}
-}
-
 // WithDestinationPath sets the path to write resources to
 func WithDestinationPath(p string) Option {
 	return func(a *Action) {
@@ -170,7 +163,6 @@ type Action struct {
 
 	// Branch name and paths to read
 	// resources from
-	targetBranch      string
 	destinationPath   string
 	sourcePath        string
 	processorPath     string

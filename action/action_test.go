@@ -172,31 +172,6 @@ func TestWithTLSCACert(t *testing.T) {
 	}
 }
 
-func TestWithTargetBranch(t *testing.T) {
-	cases := []struct {
-		name   string
-		intput string
-		expect *Action
-	}{
-		{
-			"Set target branch",
-			"main",
-			&Action{
-				targetBranch: "main",
-			},
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			a := &Action{}
-			opt := WithTargetBranch(tc.intput)
-			opt(a)
-			require.Equal(t, tc.expect, a)
-		})
-	}
-}
-
 func TestWithDestinationPath(t *testing.T) {
 	cases := []struct {
 		name   string
