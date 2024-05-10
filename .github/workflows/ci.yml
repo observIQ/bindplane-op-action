@@ -103,7 +103,9 @@ jobs:
           command: |
             curl -kv \
               -u admin:admin https://localhost:3001/v1/accounts \
-              -X POST -d '{"displayName": "init"}' -v
+              -X POST -d '{"displayName": "init"}' -v \
+              --key step/bindplane.key \
+              --cert step/bindplane.crt
 
       - name: Run BindPlane Action
         # This should be replaced with a release action.
