@@ -101,8 +101,8 @@ jobs:
           max_attempts: 3
           shell: bash
           command: |
-            curl \
-              -u admin:admin http://localhost:3001/v1/accounts \
+            curl -kv \
+              -u admin:admin https://localhost:3001/v1/accounts \
               -X POST -d '{"displayName": "init"}' -v
 
       - name: Run BindPlane Action
