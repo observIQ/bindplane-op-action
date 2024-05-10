@@ -432,55 +432,31 @@ func (a *Action) WriteBack() error {
 		return fmt.Errorf("get worktree: %w", err)
 	}
 
-	configurations := []model.Configuration{}
+	rawConfigs := make(map[string]string)
 	for _, name := range a.state.ConfigurationNames() {
-		configuration, err := a.client.Configuration(context.Background(), name)
+		rawConfig, err := a.client.RawConfiguration(context.Background(), name)
 		if err != nil {
 			return fmt.Errorf("get configuration %s: %w", name, err)
 		}
-		if configuration == nil {
-			return fmt.Errorf("configuration '%s' is nil: %s", name, BugError)
+		if rawConfig == "" {
+			return fmt.Errorf("configuration '%s' is empty: %s", name, BugError)
 		}
-		configurations = append(configurations, *configuration)
+		rawConfigs[name] = rawConfig
 	}
 
-	for _, c := range configurations {
-		// Cleanup metadata before writing back, this is the same
-		// as the CLI's get --export option.
-		c.Metadata.Hash = ""
-		c.Metadata.Version = 0
-		c.Metadata.DateModified = nil
-
-		destinations := []model.ResourceConfiguration{}
-		for _, d := range c.Spec.Destinations {
-			d.Type = model.TrimVersion(d.Type)
-			d.Name = model.TrimVersion(d.Name)
-			destinations = append(destinations, d)
-		}
-		c.Spec.Destinations = destinations
-
-		sources := []model.ResourceConfiguration{}
-		for _, s := range c.Spec.Sources {
-			s.Type = model.TrimVersion(s.Type)
-			s.Name = model.TrimVersion(s.Name)
-			sources = append(sources, s)
-		}
-		c.Spec.Sources = sources
-
-		path := fmt.Sprintf("./out_repo/%s/%s.yaml", a.configurationOutputDir, c.Metadata.Name)
+	for name, rawConfig := range rawConfigs {
+		path := fmt.Sprintf("./out_repo/%s/%s.yaml", a.configurationOutputDir, name)
 		f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return fmt.Errorf("open file %s: %w", path, err)
 		}
+		defer f.Close()
 
-		encoder := yaml.NewEncoder(f)
-		if err := encoder.Encode(c); err != nil {
-			return fmt.Errorf("encode configuration %s: %w", c.Metadata.Name, err)
+		if _, err := f.WriteString(rawConfig); err != nil {
+			return fmt.Errorf("write file %s: %w", path, err)
 		}
 
-		if err := encoder.Close(); err != nil {
-			return fmt.Errorf("close encoder: %w", err)
-		}
+		a.Logger.Info("Raw configuration written to file", zap.String("name", name), zap.String("path", path))
 	}
 
 	status, err := tree.Status()

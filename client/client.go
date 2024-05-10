@@ -89,8 +89,19 @@ func (c *BindPlane) Apply(_ context.Context, resources []*model.AnyResource) ([]
 	return ar.Updates, nil
 }
 
-// Configuration queries the BindPlane API for the configurations
+// Configuration queries the BindPlane API and returns a configuration by name
 func (c *BindPlane) Configuration(_ context.Context, name string) (*model.Configuration, error) {
+	pr, err := c.configuration(name)
+	return pr.Configuration, err
+}
+
+// RawConfiguration queries the BindPlane API and returns a raw configuration by name
+func (c *BindPlane) RawConfiguration(_ context.Context, name string) (string, error) {
+	pr, err := c.configuration(name)
+	return pr.Raw, err
+}
+
+func (c *BindPlane) configuration(name string) (*model.ConfigurationResponse, error) {
 	pr := &model.ConfigurationResponse{}
 	resp, err := c.client.R().SetResult(pr).Get(fmt.Sprintf("/configurations/%s", name))
 	if err != nil {
@@ -102,7 +113,7 @@ func (c *BindPlane) Configuration(_ context.Context, name string) (*model.Config
 		return nil, fmt.Errorf("BindPlane API returned status %d: %s", status, resp.String())
 	}
 
-	return pr.Configuration, nil
+	return pr, nil
 }
 
 // StartRollout starts a rollout by name
