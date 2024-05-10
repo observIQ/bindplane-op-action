@@ -209,6 +209,27 @@ func (a *Action) TestConnection() (version.Version, error) {
 	return v, err
 }
 
+// Run executes the action
+func (a *Action) Run() error {
+	if err := a.Apply(); err != nil {
+		return fmt.Errorf("failed to apply resources: %w", err)
+	}
+
+	if a.autoRollout {
+		if err := a.AutoRollout(); err != nil {
+			return fmt.Errorf("failed to rollout configuration: %s", err)
+		}
+	}
+
+	if a.enableWriteBack {
+		if err := a.WriteBack(); err != nil {
+			return fmt.Errorf("failed to write back configuration: %s", err)
+		}
+	}
+
+	return nil
+}
+
 // Apply applies destinations, sources, processors, and configurations
 // in that order. It is important to apply destinations first, followed
 // by resource library sources and processors. Configurations should be
@@ -500,27 +521,6 @@ func (a *Action) WriteBack() error {
 	}
 
 	a.Logger.Info("Changes written back to repository")
-
-	return nil
-}
-
-// Run executes the action
-func (a *Action) Run() error {
-	if err := a.Apply(); err != nil {
-		return fmt.Errorf("failed to apply resources: %w", err)
-	}
-
-	if a.autoRollout {
-		if err := a.AutoRollout(); err != nil {
-			return fmt.Errorf("failed to rollout configuration: %s", err)
-		}
-	}
-
-	if a.enableWriteBack {
-		if err := a.WriteBack(); err != nil {
-			return fmt.Errorf("failed to write back configuration: %s", err)
-		}
-	}
 
 	return nil
 }
