@@ -40,8 +40,8 @@ jobs:
         # When writing back to the repo, we write to directories based
         # on the bindplane version.
         bindplane_versions:
-          - 1.37.0
           - 1.45.0
+          - 1.55.0
           - latest
     steps:
       - name: Checkout
@@ -80,7 +80,6 @@ jobs:
             -e BINDPLANE_PASSWORD=admin \
             -e BINDPLANE_REMOTE_URL=https://${MAIN_IP}:3001 \
             -e BINDPLANE_SESSION_SECRET=2c23c9d3-850f-4062-a5c8-3f9b814ae144 \
-            -e BINDPLANE_SECRET_KEY=8a5353f7-bbf4-4eea-846d-a6d54296b781 \
             -e BINDPLANE_LOG_OUTPUT=stdout \
             -e BINDPLANE_ACCEPT_EULA=true \
             -e BINDPLANE_TLS_CERT=/bindplane.crt \
@@ -93,6 +92,12 @@ jobs:
             ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
         env:
           BINDPLANE_LICENSE: ${{ secrets.BINDPLANE_LICENSE }}
+
+      - name: Init BindPlane Account
+        run: |
+          curl \
+            -u admin:admin http://localhost:3001/v1/accounts \
+            -X POST -d '{"displayName": "init"}' -v
 
       - name: Wait for BindPlane
         uses: nick-fields/retry@v2
