@@ -93,6 +93,15 @@ jobs:
         env:
           BINDPLANE_LICENSE: ${{ secrets.BINDPLANE_LICENSE }}
 
+      - name: Wait for BindPlane
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1
+          polling_interval_seconds: 1
+          max_attempts: 10
+          shell: bash
+          command: docker exec bindplane /bindplane get agent --tls-ca /ca.crt
+
       - name: Init BindPlane Account
         run: |
           curl \
