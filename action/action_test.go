@@ -3,7 +3,7 @@ package action
 import (
 	"testing"
 
-	"github.com/observiq/bindplane-op-action/client/config"
+	"github.com/observiq/bindplane-op-action/internal/client/config"
 
 	"go.uber.org/zap"
 

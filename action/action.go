@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/observiq/bindplane-op-action/action/state"
-	"github.com/observiq/bindplane-op-action/client"
-	"github.com/observiq/bindplane-op-action/client/config"
-	"github.com/observiq/bindplane-op-action/client/model"
-	"github.com/observiq/bindplane-op-action/client/version"
+	"github.com/observiq/bindplane-op-action/internal/client"
+	"github.com/observiq/bindplane-op-action/internal/client/config"
+	"github.com/observiq/bindplane-op-action/internal/client/model"
+	"github.com/observiq/bindplane-op-action/internal/client/version"
 	"gopkg.in/yaml.v3"
 
 	"github.com/go-git/go-git/v5"

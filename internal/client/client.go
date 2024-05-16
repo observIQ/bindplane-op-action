@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/observiq/bindplane-op-action/client/config"
-	"github.com/observiq/bindplane-op-action/client/model"
-	"github.com/observiq/bindplane-op-action/client/version"
+	"github.com/observiq/bindplane-op-action/internal/client/config"
+	"github.com/observiq/bindplane-op-action/internal/client/model"
+	"github.com/observiq/bindplane-op-action/internal/client/version"
 
 	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"

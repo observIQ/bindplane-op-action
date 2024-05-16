@@ -3,7 +3,7 @@ package state
 import (
 	"testing"
 
-	"github.com/observiq/bindplane-op-action/client/model"
+	"github.com/observiq/bindplane-op-action/internal/client/model"
 	"github.com/stretchr/testify/require"
 )
 

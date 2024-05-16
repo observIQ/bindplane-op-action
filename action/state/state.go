@@ -3,7 +3,7 @@ package state
 import (
 	"sync"
 
-	"github.com/observiq/bindplane-op-action/client/model"
+	"github.com/observiq/bindplane-op-action/internal/client/model"
 )
 
 // state can be used to cache data during the
