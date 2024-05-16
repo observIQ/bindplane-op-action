@@ -1,0 +1,153 @@
+---
+apiVersion: bindplane.observiq.com/v1
+kind: Configuration
+metadata:
+    id: k8s-cluster
+    name: k8s-cluster
+    labels:
+        platform: kubernetes-deployment
+spec:
+    contentType: ""
+    measurementInterval: ""
+    sources:
+        - id: 01HMS8GVNVFVD5TSWTKSJR1RY5
+          type: k8s_cluster
+          parameters:
+            - name: cluster_name
+              value: minikube
+            - name: node_conditions_to_report
+              value:
+                - Ready
+                - DiskPressure
+                - MemoryPressure
+                - PIDPressure
+                - NetworkUnavailable
+            - name: allocatable_types_to_report
+              value:
+                - cpu
+                - memory
+                - ephemeral-storage
+                - storage
+            - name: collection_interval
+              value: 60
+            - name: distribution
+              value: kubernetes
+        - id: 01HMS8GVNVFVD5TSWTKVNZS2JC
+          displayName: Production events
+          type: k8s_events
+          parameters:
+            - name: cluster_name
+              value: minikube
+            - name: namespaces
+              value:
+                - kube-system
+                - production
+    destinations:
+        - id: 01HMS8GVNVFVD5TSWTKZZNHB8R
+          name: bindplane-gateway-agent
+    selector:
+        matchLabels:
+            configuration: k8s-cluster
+---
+apiVersion: bindplane.observiq.com/v1
+kind: Configuration
+metadata:
+    id: k8s-gateway
+    name: k8s-gateway
+    labels:
+        platform: kubernetes-gateway
+spec:
+    contentType: ""
+    measurementInterval: ""
+    sources:
+        - id: 01HMS8J2WPEVAX0RSCPW4ZNWT5
+          type: otlp
+          parameters:
+            - name: telemetry_types
+              value:
+                - Metrics
+                - Logs
+                - Traces
+            - name: listen_address
+              value: 0.0.0.0
+            - name: grpc_port
+              value: 4317
+            - name: http_port
+              value: 4318
+            - name: enable_tls
+              value: false
+            - name: cert_file
+              value: ""
+            - name: key_file
+              value: ""
+            - name: mutual_tls
+              value: false
+            - name: ca_file
+              value: ""
+            - name: enable_grpc_timeout
+              value: true
+            - name: grpc_max_connection_idle
+              value: 60
+            - name: grpc_max_connection_age
+              value: 60
+            - name: grpc_max_connection_age_grace
+              value: 300
+    destinations:
+        - id: 01HMS8J2WPEVAX0RSCQ1NZ5KB6
+          name: coralogix
+        - id: 01HMS8K1AEYPBCBN47ZFYM3X7J
+          name: elasticsearch-internal
+        - id: 01HMS8KV7K4N2WKJ3337T9KJ2M
+          name: prometheus-internal
+    selector:
+        matchLabels:
+            configuration: k8s-gateway
+---
+apiVersion: bindplane.observiq.com/v1
+kind: Configuration
+metadata:
+    id: k8s-node
+    name: k8s-node
+    labels:
+        platform: kubernetes-daemonset
+spec:
+    contentType: ""
+    measurementInterval: ""
+    sources:
+        - id: 01HMS8ERRSFYE4KGQVQ2ZXXDZK
+          type: k8s_container
+          parameters:
+            - name: cluster_name
+              value: minikube
+            - name: log_source
+              value: file
+            - name: file_path
+              value:
+                - /var/log/containers/*.log
+            - name: exclude_file_path
+              value:
+                - /var/log/containers/observiq-*-collector-*
+                - /var/log/containers/bindplane-*-agent-*
+            - name: journald_path
+              value: ""
+            - name: start_at
+              value: end
+        - id: 01HMS8ERRSFYE4KGQVQ8DQC5X0
+          type: k8s_kubelet
+          parameters:
+            - name: cluster_name
+              value: minikube
+            - name: metric_groups
+              value:
+                - node
+                - pod
+                - container
+                - volume
+            - name: collection_interval
+              value: 60
+    destinations:
+        - id: 01HMS8HBK216AD6V30GKX968XK
+          name: bindplane-gateway-agent
+    selector:
+        matchLabels:
+            configuration: k8s-node
