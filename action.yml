@@ -43,7 +43,6 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   # Arg order must match the order of the arg parsing
-  # in entrypoint.sh.
   args:
     - ${{ inputs.bindplane_remote_url }}
     - ${{ inputs.bindplane_api_key }}
