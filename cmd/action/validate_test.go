@@ -195,15 +195,18 @@ func ValidateWriteBack(t *testing.T) {
 }
 
 func TestValidateActionsEnvironment(t *testing.T) {
-	require.Error(t, validateActionsEnvironment())
+	// Skip if running in github actions
+	if os.Getenv("GITHUB_ACTOR") == "" {
+		require.Error(t, validateActionsEnvironment())
 
-	os.Setenv("GITHUB_ACTOR", "actor")
-	defer os.Unsetenv("GITHUB_ACTOR")
+		os.Setenv("GITHUB_ACTOR", "actor")
+		defer os.Unsetenv("GITHUB_ACTOR")
 
-	require.Error(t, validateActionsEnvironment())
+		require.Error(t, validateActionsEnvironment())
 
-	os.Setenv("GITHUB_REPOSITORY", "repo")
-	defer os.Unsetenv("GITHUB_REPOSITORY")
+		os.Setenv("GITHUB_REPOSITORY", "repo")
+		defer os.Unsetenv("GITHUB_REPOSITORY")
+	}
 
 	require.NoError(t, validateActionsEnvironment())
 }
