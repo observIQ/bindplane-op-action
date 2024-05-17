@@ -58,7 +58,10 @@ jobs:
       # Scan binaries for invalid 3rd party licenses
       - name: Scan Binary
         working-directory: cmd/action
-        run: lichen --config=./.github/license.yaml action
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          go install github.com/uw-labs/lichen@v0.1.7
+          lichen --config=./.github/license.yaml action
       
   test:
     runs-on: ubuntu-20.04
