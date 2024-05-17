@@ -29,6 +29,40 @@ jobs:
       - name: Run ShellCheck test script
         run: shellcheck -x -s bash .github/workflows/scripts/*.sh
 
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.22
+
+      - name: Go Test
+        run: go test ./...
+
+      - name: Run Gosec Security Scanner
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          go install github.com/securego/gosec/v2/cmd/gosec@v2.20.0
+          gosec ./...
+
+      - name: Go Build
+        working-directory: cmd/action
+        run: CGO_ENABLED=0 go build
+
+      # Scan binaries for invalid 3rd party licenses
+      - name: Scan Binary
+        working-directory: cmd/action
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          go install github.com/uw-labs/lichen@v0.1.7
+          lichen --config=../../.github/license.yaml action
+      
   test:
     runs-on: ubuntu-20.04
     strategy:
@@ -39,6 +73,7 @@ jobs:
         bindplane_versions:
           - 1.45.0
           - 1.55.0
+          - 1.57.0
           - latest
     steps:
       - name: Checkout

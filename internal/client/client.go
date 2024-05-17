@@ -38,7 +38,9 @@ func NewBindPlane(config *config.Config, logger *zap.Logger) (*BindPlane, error)
 
 	restryClient.SetBaseURL(fmt.Sprintf("%s/v1", config.Network.RemoteURL))
 
-	tlsConfig := &tls.Config{}
+	tlsConfig := &tls.Config{
+		MinVersion: tls.VersionTLS13,
+	}
 	if len(config.Network.CertificateAuthority) > 0 {
 		tlsConfig.RootCAs = x509.NewCertPool()
 		for _, ca := range config.Network.CertificateAuthority {
