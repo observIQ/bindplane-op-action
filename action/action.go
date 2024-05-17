@@ -438,7 +438,7 @@ func (a *Action) WriteBack() error {
 
 	for name, rawConfig := range rawConfigs {
 		path := fmt.Sprintf("./out_repo/%s/%s.yaml", a.configurationOutputDir, name)
-		f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
+		f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
 			return fmt.Errorf("open file %s: %w", path, err)
 		}
