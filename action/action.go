@@ -273,7 +273,7 @@ func (a *Action) Apply() error {
 // apply takes a file path and applies it to the BindPlane API. If an
 // error is found in the response status, it will be returned
 func (a *Action) apply(path string) error {
-	f, err := os.Open(path)
+	f, err := os.Open(path) // #nosec G304 user defined filepath
 	if err != nil {
 		return fmt.Errorf("unable to read file at path %s: %w", path, err)
 	}
@@ -438,7 +438,7 @@ func (a *Action) WriteBack() error {
 
 	for name, rawConfig := range rawConfigs {
 		path := fmt.Sprintf("./out_repo/%s/%s.yaml", a.configurationOutputDir, name)
-		f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0600)
+		f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0600) // #nosec G304 user defined filepath
 		if err != nil {
 			return fmt.Errorf("open file %s: %w", path, err)
 		}

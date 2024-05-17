@@ -70,7 +70,7 @@ func parseArgs() error {
 
 // writeTLSFile takes a file path and writes the given contents to it
 func writeTLSFile(path string, contents string) error {
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0600)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0600) // #nosec G304 user defined filepath
 	if err != nil {
 		return fmt.Errorf("failed to create ca.crt file: %w", err)
 	}
