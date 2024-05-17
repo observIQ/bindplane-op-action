@@ -69,6 +69,7 @@ jobs:
         bindplane_versions:
           - 1.45.0
           - 1.55.0
+          - 1.57.0
           - latest
     steps:
       - name: Checkout
