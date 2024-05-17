@@ -464,7 +464,10 @@ func (a *Action) WriteBack() error {
 	a.Logger.Info("Detected changes, writing back to repository")
 	for path := range status {
 		a.Logger.Info("file changed", zap.String("path", path))
-		tree.Add(path)
+		_, err := tree.Add(path)
+		if err != nil {
+			return fmt.Errorf("git add file %s: %w", path, err)
+		}
 	}
 
 	commitMessage := "BindPlane OP Action: Update OTEL Configs"
