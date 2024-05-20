@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/observiq/bindplane-op-action/action/state"
@@ -421,6 +422,15 @@ func (a *Action) WriteBack() error {
 
 	for name, rawConfig := range rawConfigs {
 		path := fmt.Sprintf("./out_repo/%s/%s.yaml", a.configurationOutputDir, name)
+
+		// Create the directory if it doesn't exist. MkdirAll will return
+		// nil if the directory already exists. Returns an error if something
+		// goes wrong.
+		dir, _ := filepath.Split(path)
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return fmt.Errorf("create directory %s: %w", dir, err)
+		}
+
 		f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0600) // #nosec G304 user defined filepath
 		if err != nil {
 			return fmt.Errorf("open file %s: %w", path, err)
