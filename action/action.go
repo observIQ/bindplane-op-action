@@ -482,7 +482,7 @@ func (a *Action) WriteBack() error {
 // decodeAnyResourceFile takes a file path and decodes it into a slice of
 // model.AnyResource. If the file is empty, it will return an error.
 func decodeAnyResourceFile(path string) ([]*model.AnyResource, error) {
-	f, err := os.Open(path)
+	f, err := os.Open(path) // #nosec G304 user defined filepath
 	if err != nil {
 		return nil, fmt.Errorf("unable to read file at path %s: %w", path, err)
 	}
