@@ -427,7 +427,7 @@ func (a *Action) WriteBack() error {
 		// nil if the directory already exists. Returns an error if something
 		// goes wrong.
 		dir, _ := filepath.Split(path)
-		if err := os.MkdirAll(dir, 0755); err != nil {
+		if err := os.MkdirAll(dir, 0750); err != nil {
 			return fmt.Errorf("create directory %s: %w", dir, err)
 		}
 
