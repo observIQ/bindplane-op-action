@@ -498,3 +498,27 @@ func TestNew(t *testing.T) {
 		})
 	}
 }
+
+func TestDecodeAnyResourceFile(t *testing.T) {
+	resources, err := decodeAnyResourceFile("testdata/configuration.yaml")
+	require.NoError(t, err)
+	require.NotNil(t, resources)
+	require.Len(t, resources, 3)
+
+	for _, r := range resources {
+		require.Equal(t, "bindplane.observiq.com/v1", r.APIVersion)
+		require.Equal(t, "Configuration", r.Kind)
+		require.NotEmpty(t, r.Metadata.ID)
+		require.NotEmpty(t, r.Metadata.Name)
+		require.Len(t, r.Metadata.Labels, 1, "Expected 1 label")
+		platforms := []string{
+			"kubernetes-gateway",
+			"kubernetes-daemonset",
+			"kubernetes-deployment",
+		}
+		key := "platform"
+		v, ok := r.Metadata.Labels[key]
+		require.True(t, ok, "Expected label %s", key)
+		require.Contains(t, platforms, v, "Expected platform label to be one of %v, got %s", platforms, v)
+	}
+}

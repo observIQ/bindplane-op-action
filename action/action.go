@@ -2,7 +2,9 @@ package action
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"net/url"
 	"os"
 	"time"
@@ -273,28 +275,9 @@ func (a *Action) Apply() error {
 // apply takes a file path and applies it to the BindPlane API. If an
 // error is found in the response status, it will be returned
 func (a *Action) apply(path string) error {
-	f, err := os.Open(path) // #nosec G304 user defined filepath
+	resources, err := decodeAnyResourceFile(path)
 	if err != nil {
-		return fmt.Errorf("unable to read file at path %s: %w", path, err)
-	}
-
-	resources := []*model.AnyResource{}
-	decoder := yaml.NewDecoder(f)
-	for {
-		var resource model.AnyResource
-		if err := decoder.Decode(&resource); err != nil {
-			if err.Error() == "EOF" {
-				break
-			}
-			// TODO(jsirianni): Should we continue and report the error after?
-			return fmt.Errorf("resource file %s is malformed, failed to unmarshal yaml: %w", path, err)
-		}
-		resources = append(resources, &resource)
-	}
-
-	if len(resources) == 0 {
-		a.Logger.Warn("No resources found in file", zap.String("file", path))
-		return nil
+		return fmt.Errorf("decode resources: %w", err)
 	}
 
 	resp, err := a.client.Apply(context.Background(), resources)
@@ -494,4 +477,34 @@ func (a *Action) WriteBack() error {
 	a.Logger.Info("Changes written back to repository")
 
 	return nil
+}
+
+// decodeAnyResourceFile takes a file path and decodes it into a slice of
+// model.AnyResource. If the file is empty, it will return an error.
+func decodeAnyResourceFile(path string) ([]*model.AnyResource, error) {
+	f, err := os.Open(path) // #nosec G304 user defined filepath
+	if err != nil {
+		return nil, fmt.Errorf("unable to read file at path %s: %w", path, err)
+	}
+	defer f.Close()
+
+	resources := []*model.AnyResource{}
+	decoder := yaml.NewDecoder(f)
+	for {
+		resource := &model.AnyResource{}
+		if err := decoder.Decode(resource); err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			// TODO(jsirianni): Should we continue and report the error after?
+			return nil, fmt.Errorf("resource file %s is malformed, failed to unmarshal yaml: %w", path, err)
+		}
+		resources = append(resources, resource)
+	}
+
+	if len(resources) == 0 {
+		return nil, fmt.Errorf("no resources found in file: %s", path)
+	}
+
+	return resources, nil
 }
