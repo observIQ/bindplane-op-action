@@ -500,6 +500,10 @@ func decodeAnyResourceFile(path string) ([]*model.AnyResource, error) {
 		return nil, fmt.Errorf("glob path %s: %w", path, err)
 	}
 
+	if matches == nil {
+		return nil, fmt.Errorf("no matching files found when globbing %s", path)
+	}
+
 	resources := []*model.AnyResource{}
 
 	for _, match := range matches {
