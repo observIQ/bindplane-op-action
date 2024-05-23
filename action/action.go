@@ -241,7 +241,7 @@ func (a *Action) Apply() error {
 	}
 
 	if a.sourcePath != "" {
-		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindSource)), zap.String("file", a.destinationPath))
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindSource)), zap.String("file", a.sourcePath))
 		err := a.apply(a.sourcePath)
 		if err != nil {
 			return fmt.Errorf("sources: %w", err)
@@ -251,7 +251,7 @@ func (a *Action) Apply() error {
 	}
 
 	if a.processorPath != "" {
-		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindProcessor)), zap.String("file", a.destinationPath))
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindProcessor)), zap.String("file", a.processorPath))
 		err := a.apply(a.processorPath)
 		if err != nil {
 			return fmt.Errorf("processors: %w", err)
@@ -261,7 +261,7 @@ func (a *Action) Apply() error {
 	}
 
 	if a.configurationPath != "" {
-		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindConfiguration)), zap.String("file", a.destinationPath))
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindConfiguration)), zap.String("file", a.configurationPath))
 		err := a.apply(a.configurationPath)
 		if err != nil {
 			return fmt.Errorf("configuration: %w", err)
