@@ -495,11 +495,12 @@ func (a *Action) WriteBack() error {
 // function should not be passed multiple files with differing resource
 // types such as Destinations and Configurations.
 func decodeAnyResourceFile(path string) ([]*model.AnyResource, error) {
+	// Glob will return nil matches if there are IO errors. Glob only returns
+	// an error if an invalid pattern is given.
 	matches, err := filepath.Glob(path) // #nosec G304 user defined filepath
 	if err != nil {
 		return nil, fmt.Errorf("glob path %s: %w", path, err)
 	}
-
 	if matches == nil {
 		return nil, fmt.Errorf("no matching files found when globbing %s", path)
 	}
