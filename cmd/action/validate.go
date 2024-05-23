@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/observiq/bindplane-op-action/action"
+	"github.com/observiq/bindplane-op-action/internal/client/model"
 )
 
 func validate() error {
@@ -124,11 +125,11 @@ func validateActionsEnvironment() error {
 }
 
 func validateFilePaths() error {
-	files := map[string]string{
-		KindDestination:   destination_path,
-		KindSource:        source_path,
-		KindProcessor:     processor_path,
-		KindConfiguration: configuration_path,
+	files := map[model.Kind]string{
+		model.KindDestination:   destination_path,
+		model.KindSource:        source_path,
+		model.KindProcessor:     processor_path,
+		model.KindConfiguration: configuration_path,
 	}
 
 	for kind, path := range files {
@@ -136,7 +137,7 @@ func validateFilePaths() error {
 			continue
 		}
 
-		matches, err := filepath.Glob
+		matches, err := filepath.Glob(path)
 		if err != nil {
 			return fmt.Errorf("glob %s path %s: %w", kind, path, err)
 		}
