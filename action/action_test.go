@@ -527,7 +527,7 @@ func TestDecodeAnyResourceFileGlob(t *testing.T) {
 	resources, err := decodeAnyResourceFile("testdata/*.yaml")
 	require.NoError(t, err)
 	require.NotNil(t, resources)
-	require.Len(t, resources, 3)
+	require.Len(t, resources, 4)
 
 	for _, r := range resources {
 		require.Equal(t, "bindplane.observiq.com/v1", r.APIVersion)

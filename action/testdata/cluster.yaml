@@ -1,0 +1,50 @@
+---
+apiVersion: bindplane.observiq.com/v1
+kind: Configuration
+metadata:
+    id: k8s-cluster2
+    name: k8s-cluster2
+    labels:
+        platform: kubernetes-deployment
+spec:
+    contentType: ""
+    measurementInterval: ""
+    sources:
+        - id: 01HMS8GVNVFVD5TSWTKSJR1RY5
+          type: k8s_cluster
+          parameters:
+            - name: cluster_name
+              value: minikube
+            - name: node_conditions_to_report
+              value:
+                - Ready
+                - DiskPressure
+                - MemoryPressure
+                - PIDPressure
+                - NetworkUnavailable
+            - name: allocatable_types_to_report
+              value:
+                - cpu
+                - memory
+                - ephemeral-storage
+                - storage
+            - name: collection_interval
+              value: 60
+            - name: distribution
+              value: kubernetes
+        - id: 01HMS8GVNVFVD5TSWTKVNZS2JC
+          displayName: Production events
+          type: k8s_events
+          parameters:
+            - name: cluster_name
+              value: minikube
+            - name: namespaces
+              value:
+                - kube-system
+                - production
+    destinations:
+        - id: 01HMS8GVNVFVD5TSWTKZZNHB8R
+          name: bindplane-gateway-agent
+    selector:
+        matchLabels:
+            configuration: k8s-cluster2
