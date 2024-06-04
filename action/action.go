@@ -241,7 +241,7 @@ func (a *Action) Apply() error {
 	}
 
 	if a.sourcePath != "" {
-		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindSource)), zap.String("file", a.destinationPath))
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindSource)), zap.String("file", a.sourcePath))
 		err := a.apply(a.sourcePath)
 		if err != nil {
 			return fmt.Errorf("sources: %w", err)
@@ -251,7 +251,7 @@ func (a *Action) Apply() error {
 	}
 
 	if a.processorPath != "" {
-		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindProcessor)), zap.String("file", a.destinationPath))
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindProcessor)), zap.String("file", a.processorPath))
 		err := a.apply(a.processorPath)
 		if err != nil {
 			return fmt.Errorf("processors: %w", err)
@@ -261,7 +261,7 @@ func (a *Action) Apply() error {
 	}
 
 	if a.configurationPath != "" {
-		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindConfiguration)), zap.String("file", a.destinationPath))
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindConfiguration)), zap.String("file", a.configurationPath))
 		err := a.apply(a.configurationPath)
 		if err != nil {
 			return fmt.Errorf("configuration: %w", err)
@@ -491,25 +491,41 @@ func (a *Action) WriteBack() error {
 
 // decodeAnyResourceFile takes a file path and decodes it into a slice of
 // model.AnyResource. If the file is empty, it will return an error.
+// This function supports globbing, but does not gaurantee ordering. This
+// function should not be passed multiple files with differing resource
+// types such as Destinations and Configurations.
 func decodeAnyResourceFile(path string) ([]*model.AnyResource, error) {
-	f, err := os.Open(path) // #nosec G304 user defined filepath
+	// Glob will return nil matches if there are IO errors. Glob only returns
+	// an error if an invalid pattern is given.
+	matches, err := filepath.Glob(path) // #nosec G304 user defined filepath
 	if err != nil {
-		return nil, fmt.Errorf("unable to read file at path %s: %w", path, err)
+		return nil, fmt.Errorf("glob path %s: %w", path, err)
 	}
-	defer f.Close()
+	if matches == nil {
+		return nil, fmt.Errorf("no matching files found when globbing %s", path)
+	}
 
 	resources := []*model.AnyResource{}
-	decoder := yaml.NewDecoder(f)
-	for {
-		resource := &model.AnyResource{}
-		if err := decoder.Decode(resource); err != nil {
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			// TODO(jsirianni): Should we continue and report the error after?
-			return nil, fmt.Errorf("resource file %s is malformed, failed to unmarshal yaml: %w", path, err)
+
+	for _, match := range matches {
+		f, err := os.Open(match) // #nosec G304 user defined filepath
+		if err != nil {
+			return nil, fmt.Errorf("unable to read file at path %s: %w", path, err)
 		}
-		resources = append(resources, resource)
+		defer f.Close()
+
+		decoder := yaml.NewDecoder(f)
+		for {
+			resource := &model.AnyResource{}
+			if err := decoder.Decode(resource); err != nil {
+				if errors.Is(err, io.EOF) {
+					break
+				}
+				// TODO(jsirianni): Should we continue and report the error after?
+				return nil, fmt.Errorf("resource file %s is malformed, failed to unmarshal yaml: %w", path, err)
+			}
+			resources = append(resources, resource)
+		}
 	}
 
 	if len(resources) == 0 {

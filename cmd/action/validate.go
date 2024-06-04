@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path/filepath"
 
 	"github.com/observiq/bindplane-op-action/action"
+	"github.com/observiq/bindplane-op-action/internal/client/model"
 )
 
 func validate() error {
@@ -123,27 +125,25 @@ func validateActionsEnvironment() error {
 }
 
 func validateFilePaths() error {
-	if destination_path != "" {
-		if _, err := os.Stat(destination_path); os.IsNotExist(err) {
-			return fmt.Errorf("destination_path does not exist: %s", destination_path)
-		}
+	files := map[model.Kind]string{
+		model.KindDestination:   destination_path,
+		model.KindSource:        source_path,
+		model.KindProcessor:     processor_path,
+		model.KindConfiguration: configuration_path,
 	}
 
-	if source_path != "" {
-		if _, err := os.Stat(source_path); os.IsNotExist(err) {
-			return fmt.Errorf("source_path does not exist: %s", source_path)
+	for kind, path := range files {
+		if path == "" {
+			continue
 		}
-	}
 
-	if processor_path != "" {
-		if _, err := os.Stat(processor_path); os.IsNotExist(err) {
-			return fmt.Errorf("processor_path does not exist: %s", processor_path)
+		matches, err := filepath.Glob(path)
+		if err != nil {
+			return fmt.Errorf("glob %s path %s: %w", kind, path, err)
 		}
-	}
 
-	if configuration_path != "" {
-		if _, err := os.Stat(configuration_path); os.IsNotExist(err) {
-			return fmt.Errorf("configuration_path does not exist: %s", configuration_path)
+		if matches == nil {
+			return fmt.Errorf("%s path %s does not exist or did not match any files with globbing", kind, path)
 		}
 	}
 
