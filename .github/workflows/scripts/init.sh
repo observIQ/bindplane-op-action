@@ -4,7 +4,7 @@
 # depending on the version. Pre 1.59.0 was account based, post 1.59.0 is
 # organization based.
 
-set -e
+set -ex
 
 BINDPLANE_VERSION=$1
 ORGS=false
