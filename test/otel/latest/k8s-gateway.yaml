@@ -7,9 +7,9 @@ receivers:
                 endpoint: 0.0.0.0:4317
                 keepalive:
                     server_parameters:
-                        max_connection_age: 60s
-                        max_connection_age_grace: 300s
-                        max_connection_idle: 60s
+                        max_connection_age: 1m0s
+                        max_connection_age_grace: 5m0s
+                        max_connection_idle: 1m0s
                         time: 2h
                         timeout: 20s
                 max_recv_msg_size_mib: 4
@@ -174,4 +174,6 @@ service:
             processors: []
             exporters:
                 - elasticsearch/elasticsearch-internal__traces
-
+    telemetry:
+        metrics:
+            address: localhost:8888

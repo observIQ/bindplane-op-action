@@ -75,4 +75,6 @@ service:
                 - batch/bindplane-gateway-agent
             exporters:
                 - otlp/bindplane-gateway-agent
-
+    telemetry:
+        metrics:
+            address: localhost:8888
