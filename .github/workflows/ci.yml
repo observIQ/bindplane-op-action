@@ -128,19 +128,14 @@ jobs:
         env:
           BINDPLANE_LICENSE: ${{ secrets.BINDPLANE_LICENSE }}
 
-      - name: Init BindPlane Account
+      - name: Init BindPlane Account or Organization
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 1
           polling_interval_seconds: 2
           max_attempts: 3
           shell: bash
-          command: |
-            curl -kv \
-              -u admin:admin https://localhost:3001/v1/accounts \
-              -X POST -d '{"displayName": "init"}' -v \
-              --key step/bindplane.key \
-              --cert step/bindplane.crt
+          command: BINDPLANE_VERSION=${{ matrix.bindplane_versions }} .github/workflows/scripts/init.sh
 
       - name: Run BindPlane Action
         # This should be replaced with a release action.
