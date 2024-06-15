@@ -66,6 +66,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         # This matrix allows us to test multiple bindplane versions.
         # When writing back to the repo, we write to directories based
@@ -76,6 +77,7 @@ jobs:
           - 1.56.0
           - 1.57.0
           - 1.58.0
+          - 1.59.0 # organizations and projects
           - latest # keep
     steps:
       - name: Checkout
@@ -127,19 +129,14 @@ jobs:
         env:
           BINDPLANE_LICENSE: ${{ secrets.BINDPLANE_LICENSE }}
 
-      - name: Init BindPlane Account
+      - name: Init BindPlane Account or Organization
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 1
           polling_interval_seconds: 2
           max_attempts: 3
           shell: bash
-          command: |
-            curl -kv \
-              -u admin:admin https://localhost:3001/v1/accounts \
-              -X POST -d '{"displayName": "init"}' -v \
-              --key step/bindplane.key \
-              --cert step/bindplane.crt
+          command: .github/workflows/scripts/init.sh ${{ matrix.bindplane_versions }}
 
       - name: Run BindPlane Action
         # This should be replaced with a release action.
