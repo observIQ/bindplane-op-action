@@ -13,6 +13,8 @@ if [ -z "$BINDPLANE_VERSION" ]; then
     echo "Usage: $0 <BINDPLANE_VERSION>"
 fi
 
+echo "Initializing BindPlane $BINDPLANE_VERSION"
+
 if [[ $(printf '%s\n' "$BINDPLANE_VERSION" "1.58.0" | sort -V | head -n1) == "1.58.0" && "$BINDPLANE_VERSION" != "1.58.0" ]]; then
     ORGS=true
 elif [[ "$BINDPLANE_VERSION" == "latest" ]]; then
