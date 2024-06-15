@@ -6,12 +6,13 @@
 
 set -ex
 
+if [ -z "$1" ]; then
+    echo "Usage: $0 <bindplane_version>"
+    exit 1
+fi
+
 BINDPLANE_VERSION=$1
 ORGS=false
-
-if [ -z "$BINDPLANE_VERSION" ]; then
-    echo "Usage: $0 <BINDPLANE_VERSION>"
-fi
 
 echo "Initializing BindPlane $BINDPLANE_VERSION"
 

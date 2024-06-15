@@ -136,7 +136,7 @@ jobs:
           polling_interval_seconds: 2
           max_attempts: 3
           shell: bash
-          command: BINDPLANE_VERSION=${{ matrix.bindplane_versions }} .github/workflows/scripts/init.sh
+          command: .github/workflows/scripts/init.sh ${{ matrix.bindplane_versions }}
 
       - name: Run BindPlane Action
         # This should be replaced with a release action.
