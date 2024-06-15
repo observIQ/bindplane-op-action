@@ -66,6 +66,7 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         # This matrix allows us to test multiple bindplane versions.
         # When writing back to the repo, we write to directories based
