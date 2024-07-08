@@ -16,7 +16,11 @@ import (
 	"go.uber.org/zap"
 )
 
-const KeyHeader = "X-Bindplane-Api-Key"
+const (
+	KeyHeader = "X-Bindplane-Api-Key"
+
+	DefaultTimeout = time.Second * 60
+)
 
 type BindPlane struct {
 	logger *zap.Logger
@@ -28,7 +32,10 @@ type BindPlane struct {
 func NewBindPlane(config *config.Config, logger *zap.Logger) (*BindPlane, error) {
 	restryClient := resty.New()
 	restryClient.SetDisableWarn(true)
-	restryClient.SetTimeout(time.Second * 20)
+
+	// Resty defaults to 60 seconds, but we want to be clear
+	// that we are setting a timeout here.
+	restryClient.SetTimeout(DefaultTimeout)
 
 	restryClient.SetBasicAuth(config.Auth.Username, config.Auth.Password)
 
