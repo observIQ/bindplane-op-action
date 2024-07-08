@@ -32,9 +32,6 @@ type BindPlane struct {
 func NewBindPlane(config *config.Config, logger *zap.Logger) (*BindPlane, error) {
 	restryClient := resty.New()
 	restryClient.SetDisableWarn(true)
-
-	// Resty defaults to 60 seconds, but we want to be clear
-	// that we are setting a timeout here.
 	restryClient.SetTimeout(DefaultTimeout)
 
 	restryClient.SetBasicAuth(config.Auth.Username, config.Auth.Password)
