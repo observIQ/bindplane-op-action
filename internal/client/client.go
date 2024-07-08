@@ -22,14 +22,31 @@ const (
 	DefaultTimeout = time.Second * 60
 )
 
+// Option is a functional option for configuring the BindPlane client
+type Option func(*BindPlane) error
+
+// WithTimeout sets the timeout for the BindPlane client. If a zero value is provided,
+// this function will no-op.
+func WithTimeout(timeout time.Duration) Option {
+	return func(c *BindPlane) error {
+		if timeout == 0 {
+			return nil
+		}
+
+		c.client.SetTimeout(timeout)
+		return nil
+	}
+}
+
 type BindPlane struct {
 	logger *zap.Logger
 	config *config.Config
 	client *resty.Client
 }
 
-// NewBindPlane takes a config and logger and returns a configured BindPlane client
-func NewBindPlane(config *config.Config, logger *zap.Logger) (*BindPlane, error) {
+// NewBindPlane takes a config and logger and optional options. Returns a configured BindPlane client.
+// Options are not required, the client will be returned with default values if no options are specified.
+func NewBindPlane(config *config.Config, logger *zap.Logger, opts ...Option) (*BindPlane, error) {
 	restryClient := resty.New()
 	restryClient.SetDisableWarn(true)
 	restryClient.SetTimeout(DefaultTimeout)
@@ -56,11 +73,19 @@ func NewBindPlane(config *config.Config, logger *zap.Logger) (*BindPlane, error)
 
 	restryClient.SetTLSClientConfig(tlsConfig)
 
-	return &BindPlane{
+	b := &BindPlane{
 		logger: logger,
 		config: config,
 		client: restryClient,
-	}, nil
+	}
+
+	for _, opt := range opts {
+		if err := opt(b); err != nil {
+			return nil, fmt.Errorf("apply option: %w", err)
+		}
+	}
+
+	return b, nil
 }
 
 // Version queries the BindPlane API for the version information
