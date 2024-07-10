@@ -1,6 +1,102 @@
 # This configuration is managed by BindPlane OP.
 # Configuration: k8s-node:1
 receivers:
+    filelog/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK:
+        attributes:
+            log_type: k8s.container_logs
+        exclude:
+            - /var/log/containers/observiq-*-collector-*
+            - /var/log/containers/bindplane-*-agent-*
+        include:
+            - /var/log/containers/*.log
+        operators:
+            - cache:
+                size: 500
+              id: file_name_parser
+              parse_from: attributes["log.file.name"]
+              regex: ^(?P<pod>[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)_(?P<namespace>[^_]+)_(?P<container>.+)-
+              type: regex_parser
+            - from: attributes.pod
+              to: resource["k8s.pod.name"]
+              type: move
+            - from: attributes.namespace
+              to: resource["k8s.namespace.name"]
+              type: move
+            - from: attributes.container
+              to: resource["k8s.container.name"]
+              type: move
+            - default: docker_json_file_parser
+              routes:
+                - expr: body matches "^[^{]"
+                  output: containerd_cri_parser
+              type: router
+            - id: docker_json_file_parser
+              output: log-to-body
+              timestamp:
+                layout: '%Y-%m-%dT%H:%M:%S.%sZ'
+                parse_from: attributes.time
+              type: json_parser
+            - id: containerd_cri_parser
+              regex: ^(?P<time>[^\s]+) (?P<stream>\w+) (?P<partial>\w)? ?(?P<log>.*)
+              type: regex_parser
+            - combine_field: attributes.log
+              is_last_entry: attributes.partial == 'F'
+              source_identifier: attributes["log.file.name"]
+              type: recombine
+            - field: attributes.partial
+              type: remove
+            - id: time_parser_router
+              routes:
+                - expr: attributes.time != nil and attributes.time matches "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3,9}[\\+-]\\d{2}:\\d{2}"
+                  output: local_containerd_timestamp_parser
+                - expr: attributes.time != nil and attributes.time matches "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3,9}Z"
+                  output: utc_containerd_timestamp_parser
+              type: router
+            - id: local_containerd_timestamp_parser
+              layout: '%Y-%m-%dT%H:%M:%S.%s%j'
+              output: log-to-body
+              parse_from: attributes.time
+              type: time_parser
+            - id: utc_containerd_timestamp_parser
+              layout: '%Y-%m-%dT%H:%M:%S.%sZ'
+              output: log-to-body
+              parse_from: attributes.time
+              type: time_parser
+            - from: attributes.log
+              id: log-to-body
+              to: body
+              type: move
+            - id: base_severity_parser
+              mapping:
+                error: stderr
+                info: stdout
+              parse_from: attributes.stream
+              type: severity_parser
+            - id: parse_json_body
+              if: body matches "^{.*}\\s*$"
+              parse_from: body
+              parse_to: body
+              type: json_parser
+            - default: end
+              routes:
+                - expr: type(body) == "map" && body.severity != nil
+                  output: body_severity_parser
+                - expr: type(body) == "map" && body.level != nil
+                  output: body_level_parser
+              type: router
+            - id: body_severity_parser
+              output: end
+              parse_from: body.severity
+              type: severity_parser
+            - id: body_level_parser
+              output: end
+              parse_from: body.level
+              type: severity_parser
+            - id: end
+              type: noop
+        poll_interval: 500ms
+        start_at: end
+        storage: file_storage/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK
     kubeletstats/source1_01HMS8ERRSFYE4KGQVQ8DQC5X0:
         auth_type: serviceAccount
         collection_interval: 1m0s
@@ -11,17 +107,6 @@ receivers:
             - pod
             - container
             - volume
-    plugin/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK__container:
-        parameters:
-            body_json_parsing: true
-            exclude_file_log_path:
-                - /var/log/containers/observiq-*-collector-*
-                - /var/log/containers/bindplane-*-agent-*
-            log_paths:
-                - /var/log/containers/*.log
-            log_source: file
-            start_at: end
-        path: $OIQ_OTEL_COLLECTOR_HOME/plugins/container_logs.yaml
 processors:
     batch/bindplane-gateway-agent: null
     resource/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK:
@@ -62,13 +147,16 @@ extensions:
             directory: $OIQ_OTEL_COLLECTOR_HOME/storage
             on_rebound: true
         directory: $OIQ_OTEL_COLLECTOR_HOME/storage
+    file_storage/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK:
+        directory: $OIQ_OTEL_COLLECTOR_HOME/storage
 service:
     extensions:
+        - file_storage/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK
         - file_storage/bindplane-gateway-agent
     pipelines:
         logs/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK__bindplane-gateway-agent-0:
             receivers:
-                - plugin/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK__container
+                - filelog/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK
             processors:
                 - resource/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK
                 - batch/bindplane-gateway-agent
