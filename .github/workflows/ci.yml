@@ -74,11 +74,8 @@ jobs:
         bindplane_versions:
           - 1.45.0 # keep
           - 1.55.0 # keep
-          - 1.56.0
-          - 1.57.0
-          - 1.58.0
           - 1.59.0 # organizations and projects
-          - 1.63.1
+          - 1.64.0
           - latest # keep
     steps:
       - name: Checkout
