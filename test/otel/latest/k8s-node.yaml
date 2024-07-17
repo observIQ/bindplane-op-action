@@ -9,6 +9,7 @@ receivers:
             - /var/log/containers/bindplane-*-agent-*
         include:
             - /var/log/containers/*.log
+        max_log_size: 1MiB
         operators:
             - cache:
                 size: 500
