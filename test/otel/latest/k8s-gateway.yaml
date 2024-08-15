@@ -122,14 +122,14 @@ exporters:
 extensions:
     file_storage/coralogix:
         compaction:
-            directory: $OIQ_OTEL_COLLECTOR_HOME/storage
+            directory: ${OIQ_OTEL_COLLECTOR_HOME}/storage
             on_rebound: true
-        directory: $OIQ_OTEL_COLLECTOR_HOME/storage
+        directory: ${OIQ_OTEL_COLLECTOR_HOME}/storage
     file_storage/elasticsearch-internal:
         compaction:
-            directory: $OIQ_OTEL_COLLECTOR_HOME/storage
+            directory: ${OIQ_OTEL_COLLECTOR_HOME}/storage
             on_rebound: true
-        directory: $OIQ_OTEL_COLLECTOR_HOME/storage
+        directory: ${OIQ_OTEL_COLLECTOR_HOME}/storage
 service:
     extensions:
         - file_storage/coralogix

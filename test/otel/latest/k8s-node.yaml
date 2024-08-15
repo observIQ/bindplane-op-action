@@ -145,11 +145,11 @@ exporters:
 extensions:
     file_storage/bindplane-gateway-agent:
         compaction:
-            directory: $OIQ_OTEL_COLLECTOR_HOME/storage
+            directory: ${OIQ_OTEL_COLLECTOR_HOME}/storage
             on_rebound: true
-        directory: $OIQ_OTEL_COLLECTOR_HOME/storage
+        directory: ${OIQ_OTEL_COLLECTOR_HOME}/storage
     file_storage/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK:
-        directory: $OIQ_OTEL_COLLECTOR_HOME/storage
+        directory: ${OIQ_OTEL_COLLECTOR_HOME}/storage
 service:
     extensions:
         - file_storage/source0_01HMS8ERRSFYE4KGQVQ2ZXXDZK
