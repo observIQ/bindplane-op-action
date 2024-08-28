@@ -76,6 +76,7 @@ jobs:
           - 1.55.0 # keep
           - 1.59.0 # organizations and projects
           - 1.65.0
+          - 1.70.0
           - latest # keep
     steps:
       - name: Checkout
