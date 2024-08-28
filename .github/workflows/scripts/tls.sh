@@ -7,13 +7,6 @@ if [ -z "$MAIN_IP" ]; then
     exit 1
 fi
 
-curl -L -s -o step.tar.gz \
-    https://dl.step.sm/gh-release/cli/gh-release-header/v0.22.0/step_linux_0.22.0_amd64.tar.gz
-tar -xzf step.tar.gz
-mv step_0.22.0/bin/step /usr/local/bin/step
-rm -f step.tar.gz
-rm -rf step_0.22.0
-
 mkdir step/
 chmod -R 0755 step/
 

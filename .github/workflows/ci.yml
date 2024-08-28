@@ -76,6 +76,7 @@ jobs:
           - 1.55.0 # keep
           - 1.59.0 # organizations and projects
           - 1.65.0
+          - 1.70.0
           - latest # keep
     steps:
       - name: Checkout
@@ -88,6 +89,12 @@ jobs:
 
       - name: Print Runner IP
         run: echo $MAIN_IP
+
+      # https://smallstep.com/docs/step-cli/installation/
+      - name: Install Step CLI
+        run: |
+          wget https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_amd64.deb
+          sudo dpkg -i step-cli_amd64.deb
 
       - name: Generate TLS Certs
         run: ./.github/workflows/scripts/tls.sh
