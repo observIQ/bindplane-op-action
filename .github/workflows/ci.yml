@@ -78,6 +78,7 @@ jobs:
           - 1.65.0
           - 1.70.0
           - 1.71.0
+          - 1.72.0
           - latest # keep
     steps:
       - name: Checkout
