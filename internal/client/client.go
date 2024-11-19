@@ -68,8 +68,16 @@ func NewBindPlane(config *config.Config, logger *zap.Logger) (*BindPlane, error)
 // Version queries the BindPlane API for the version information
 func (b *BindPlane) Version(_ context.Context) (version.Version, error) {
 	v := version.Version{}
-	_, err := b.client.R().SetResult(&v).Get("/version")
-	return v, err
+	r, err := b.client.R().SetResult(&v).Get("/version")
+	if err != nil {
+		return v, fmt.Errorf("failed to get version: %w", err)
+	}
+
+	if r.StatusCode() != 200 {
+		return v, fmt.Errorf("failed to get version: %s", r.String())
+	}
+
+	return v, nil
 }
 
 // Apply applies a list of resources to the BindPlane API
