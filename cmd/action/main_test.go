@@ -49,6 +49,30 @@ func Test_extractName(t *testing.T) {
 			found:    false,
 			expected: "",
 		},
+		{
+			name:     "Config name with -",
+			input:    "progress rollout test-name",
+			found:    false,
+			expected: "test-name",
+		},
+		{
+			name:     "Config name with - .",
+			input:    "progress rollout test-.name",
+			found:    false,
+			expected: "test-.name",
+		},
+		{
+			name:     "Config name with .",
+			input:    "progress rollout test.name",
+			found:    false,
+			expected: "test.name",
+		},
+		{
+			name:     "Config name with _",
+			input:    "progress rollout test_name",
+			found:    false,
+			expected: "test_name",
+		},
 	}
 
 	for _, tc := range cases {
