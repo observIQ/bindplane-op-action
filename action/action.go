@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/url"
 	"os"
 	"path/filepath"
 	"time"
@@ -378,10 +377,6 @@ func (a *Action) WriteBack() error {
 			a.githubToken,
 			githubRepo,
 		)
-	}
-	// TODO(jsirianni) this is just for quick testing, remove before merge
-	if _, err := url.Parse(cloneURL); err != nil {
-		panic("invalid github url")
 	}
 
 	a.Logger.Info(
