@@ -34,7 +34,9 @@ func CloneRepo(cloneURL, branch, token string) (*git.Repository, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*120)
 	defer cancel()
 
-	repo, err := git.PlainCloneContext(ctx, "./out_repo", false, &git.CloneOptions{
+	dir := fmt.Sprintf("%s/%s-%d", os.TempDir(), branch, time.Now().Unix())
+
+	repo, err := git.PlainCloneContext(ctx, dir, false, &git.CloneOptions{
 		URL:           cloneURL,
 		Progress:      os.Stdout,
 		SingleBranch:  true,
