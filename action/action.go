@@ -224,6 +224,15 @@ func (a *Action) Run() error {
 	return nil
 }
 
+// RunRollout progresses a rollout for a configuration
+func (a *Action) RunRollout(config string) error {
+	if err := a.client.StartRollout(config); err != nil {
+		return fmt.Errorf("start rollout: %w", err)
+	}
+
+	return nil
+}
+
 // Apply applies destinations, sources, processors, and configurations
 // in that order. It is important to apply destinations first, followed
 // by resource library sources and processors. Configurations should be
