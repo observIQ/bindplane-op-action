@@ -73,6 +73,12 @@ func Test_extractName(t *testing.T) {
 			found:    true,
 			expected: "test_name",
 		},
+		{
+			name:     "Readme example",
+			input:    "Trigger rollout for dev: progress rollout dev-config",
+			found:    true,
+			expected: "dev-config",
+		},
 	}
 
 	for _, tc := range cases {
