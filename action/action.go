@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/url"
 	"os"
 	"path/filepath"
 	"time"
@@ -15,10 +14,10 @@ import (
 	"github.com/observiq/bindplane-op-action/internal/client/config"
 	"github.com/observiq/bindplane-op-action/internal/client/model"
 	"github.com/observiq/bindplane-op-action/internal/client/version"
+	"github.com/observiq/bindplane-op-action/internal/repo"
 	"gopkg.in/yaml.v3"
 
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"go.uber.org/zap"
 )
@@ -225,6 +224,15 @@ func (a *Action) Run() error {
 	return nil
 }
 
+// RunRollout progresses a rollout for a configuration
+func (a *Action) RunRollout(config string) error {
+	if err := a.client.StartRollout(config); err != nil {
+		return fmt.Errorf("start rollout: %w", err)
+	}
+
+	return nil
+}
+
 // Apply applies destinations, sources, processors, and configurations
 // in that order. It is important to apply destinations first, followed
 // by resource library sources and processors. Configurations should be
@@ -366,39 +374,11 @@ func (a *Action) AutoRollout() error {
 }
 
 func (a *Action) WriteBack() error {
-	// TODO(jsirianni): githubURL should be assembled outside of this package
-	// and passed in. We could remove the need for token, actor, and repo.
-	cloneURL := a.githubURL
-	githubActor := os.Getenv("GITHUB_ACTOR")
-	githubRepo := os.Getenv("GITHUB_REPOSITORY")
-	if cloneURL == "" {
-		cloneURL = fmt.Sprintf(
-			"https://%s:%s@github.com/%s.git",
-			githubActor,
-			a.githubToken,
-			githubRepo,
-		)
-	}
-	// TODO(jsirianni) this is just for quick testing, remove before merge
-	if _, err := url.Parse(cloneURL); err != nil {
-		panic("invalid github url")
-	}
-
 	a.Logger.Info(
 		"Cloning repository", zap.String("branch", a.configurationOutputBranch),
 	)
 
-	// TODO(jsirianni): This context sets the clone timeout. This should be
-	// a configurable option.
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*120)
-	defer cancel()
-
-	repo, err := git.PlainCloneContext(ctx, "./out_repo", false, &git.CloneOptions{
-		URL:           cloneURL,
-		Progress:      os.Stdout,
-		SingleBranch:  true,
-		ReferenceName: plumbing.NewBranchReferenceName(a.configurationOutputBranch),
-	})
+	repo, err := repo.CloneRepo(a.githubURL, a.configurationOutputBranch, a.githubToken)
 	if err != nil {
 		return fmt.Errorf("clone repository: %w", err)
 	}

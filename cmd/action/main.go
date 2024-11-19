@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/observiq/bindplane-op-action/action"
+	"github.com/observiq/bindplane-op-action/internal/repo"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -123,10 +125,67 @@ func main() {
 		zap.Any("bindplane_version", version.Tag),
 	)
 
+	// Retrieve the commit message from the head commit on the branch
+	message, err := commitMessage(github_url, branch, token)
+	if err != nil {
+		logger.Error("error getting commit message", zap.Error(err))
+		os.Exit(exitClientError)
+	}
+
+	// If the commit message contains `progress rollout <name>`, progress the rollout
+	// for the configuration instead of running the full workflow.
+	if name, ok := extractConfigName(message); ok {
+		err := action.RunRollout(name)
+		if err != nil {
+			logger.Error("error progressing rollout", zap.Error(err))
+			os.Exit(exitClientError)
+		}
+		return
+	}
+
+	// Run the full workflow
 	if err := action.Run(); err != nil {
 		action.Logger.Error("error running action", zap.Error(err))
 		os.Exit(exitClientError)
 	}
 
 	os.Exit(0)
+}
+
+// commitMessage clones the repository and returns the commit message of the
+// head commit on the provided branch.
+func commitMessage(cloneURL, branch, token string) (string, error) {
+	repo, err := repo.CloneRepo(cloneURL, branch, token)
+	if err != nil {
+		return "", fmt.Errorf("clone repository branch %s: %w", branch, err)
+	}
+
+	ref, err := repo.Head()
+	if err != nil {
+		return "", fmt.Errorf("get head commit: %w", err)
+	}
+
+	commit, err := repo.CommitObject(ref.Hash())
+	if err != nil {
+		return "", fmt.Errorf("get commit object: %w", err)
+	}
+
+	return commit.Message, nil
+}
+
+// extractName extracts a configuration name from a commit message.
+// The commit message should contain the suffix "progress rollout <name>"
+//
+// Examples:
+// - progress rollout test
+// - this is a commit message progress rollout test
+func extractConfigName(input string) (string, bool) {
+	input = strings.TrimSpace(input)
+	pattern := `progress rollout (\S+)$`
+	re := regexp.MustCompile(pattern)
+	matches := re.FindStringSubmatch(input)
+	if len(matches) == 2 {
+		return matches[1], true
+	}
+	return "", false
 }

@@ -127,3 +127,30 @@ using a TLS endpoint (`https`).
     destination_path: destination.yaml
     configuration_path: configuration.yaml     
 ```
+
+### Progressive Rollouts
+
+The action can be used to progress a rollout ad-hoc, without modifying
+configurations.
+
+To trigger a rollout progression, format your commit message with `progress rollout <name>`.
+
+Example:
+
+```bash
+git commit --allow-empty -m "progress rollout my-config"
+```
+
+The commit message must match this regular expression:
+
+```
+progress rollout (\S+)$
+```
+
+Therefore the commit message can contain additional details, such as:
+
+```bash
+git commit \
+  --allow-empty \
+  -m "Trigger rollout for dev: progress rollout dev-config"
+```
