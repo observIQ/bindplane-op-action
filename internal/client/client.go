@@ -34,7 +34,9 @@ func NewBindPlane(config *config.Config, logger *zap.Logger) (*BindPlane, error)
 	restryClient.SetDisableWarn(true)
 	restryClient.SetTimeout(DefaultTimeout)
 
-	restryClient.SetBasicAuth(config.Auth.Username, config.Auth.Password)
+	if config.Auth.Username != "" && config.Auth.Password != "" {
+		restryClient.SetBasicAuth(config.Auth.Username, config.Auth.Password)
+	}
 
 	if config.Auth.APIKey != "" {
 		restryClient.SetHeader(KeyHeader, config.Auth.APIKey)
