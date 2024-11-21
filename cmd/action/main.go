@@ -125,22 +125,26 @@ func main() {
 		zap.Any("bindplane_version", version.Tag),
 	)
 
-	// Retrieve the commit message from the head commit on the branch
-	message, err := commitMessage(github_url, branch, token)
-	if err != nil {
-		logger.Error("error getting commit message", zap.Error(err))
-		os.Exit(exitClientError)
-	}
-
-	// If the commit message contains `progress rollout <name>`, progress the rollout
-	// for the configuration instead of running the full workflow.
-	if name, ok := extractConfigName(message); ok {
-		err := action.RunRollout(name)
+	if token != "" {
+		// Retrieve the commit message from the head commit on the branch
+		message, err := commitMessage(github_url, branch, token)
 		if err != nil {
-			logger.Error("error progressing rollout", zap.Error(err))
+			logger.Error("error getting commit message", zap.Error(err))
 			os.Exit(exitClientError)
 		}
-		return
+
+		// If the commit message contains `progress rollout <name>`, progress the rollout
+		// for the configuration instead of running the full workflow.
+		if name, ok := extractConfigName(message); ok {
+			err := action.RunRollout(name)
+			if err != nil {
+				logger.Error("error progressing rollout", zap.Error(err))
+				os.Exit(exitClientError)
+			}
+			return
+		}
+	} else {
+		logger.Info("Skipping commit message check, Github token not provided")
 	}
 
 	// Run the full workflow
