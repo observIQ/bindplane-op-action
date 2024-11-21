@@ -25,7 +25,7 @@ BindPlane requires a license. You can request a free license [here](https://obse
 | enable_otel_config_write_back | `false`    | Whether or not the action should write the raw OpenTelemetry configurations back to the repository. | 
 | configuration_output_dir      |            | When write back is enabled, this is the path that will be written to. |
 | configuration_output_branch   |            | The branch to write the OTEL configuration resources to. If unset, target_branch will be used. |
-| token                         |            | The Github token that will be used to write to the repo. Usually secrets.GITHUB_TOKEN is sufficient. Requires the `contents.write` permission. Alternatively, you can set `github_url`, which should contain your access token. |
+| token                         |            | The Github token that will be used to read and write to the repo. Usually secrets.GITHUB_TOKEN is sufficient. Requires the `contents.write` permission. Alternatively, you can set `github_url`, which should contain your access token. |
 | enable_auto_rollout           | `false`    | When enabled, the action will trigger a rollout for any configuration that has been updated. |
 | tls_ca_cert                   |            | The contents of a TLS certificate authority, usually from a secret. See the [TLS](#tls) section. |
 | github_url                    |            | Optional URL to use when cloning the repository. Should be of the form `"https://{GITHUB_ACTOR}:{TOKEN}@{GITHUB_HOST}/{GITHUB_REPOSITORY}.git`. When set, `token` will not be used. |
