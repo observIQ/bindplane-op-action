@@ -130,6 +130,8 @@ jobs:
             -e BINDPLANE_TLS_CERT=/bindplane.crt \
             -e BINDPLANE_TLS_KEY=/bindplane.key \
             -e BINDPLANE_LICENSE="${BINDPLANE_LICENSE}" \
+            - BINDPLANE_TRANSFORM_AGENT_ENABLE_REMOTE=true
+            - BINDPLANE_TRANSFORM_AGENT_REMOTE_AGENTS=transform:4568
             -p 3001:3001 \
             -v $(pwd)/step/bindplane.crt:/bindplane.crt \
             -v $(pwd)/step/bindplane.key:/bindplane.key \
