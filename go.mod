@@ -2,8 +2,6 @@ module github.com/observiq/bindplane-op-action
 
 go 1.24.0
 
-toolchain go1.24.0
-
 require (
 	github.com/go-git/go-git/v5 v5.13.0
 	github.com/go-resty/resty/v2 v2.12.0
