@@ -1,8 +1,8 @@
 module github.com/observiq/bindplane-op-action
 
-go 1.22.0
+go 1.24.0
 
-toolchain go1.22.3
+toolchain go1.24.0
 
 require (
 	github.com/go-git/go-git/v5 v5.13.0
