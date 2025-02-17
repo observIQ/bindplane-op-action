@@ -125,7 +125,7 @@ func main() {
 		zap.Any("bindplane_version", version.Tag),
 	)
 
-	if token != "" {
+	if token != "" || github_url != "" {
 		// Retrieve the commit message from the head commit on the branch
 		message, err := commitMessage(github_url, branch, token)
 		if err != nil {
