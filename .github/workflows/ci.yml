@@ -116,11 +116,40 @@ jobs:
       - name: Pull BindPlane
         run: docker pull ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
 
+      - name: Create Docker Network
+        run: docker network create bindplane
+
+      - name: Create Postgres Database
+        run: |
+          docker run \
+            -d \
+            --network bindplane \
+            --name bindplane-postgres \
+            -e POSTGRES_USER=bindplane \
+            -e POSTGRES_PASSWORD=bindplane \
+            -e POSTGRES_DB=bindplane \
+            --health-cmd="pg_isready -U bindplane" \
+            --health-interval=5s \
+            --health-timeout=5s \
+            --health-retries=5 \
+            -p 5432:5432 \
+            postgres:16
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          echo "Waiting for PostgreSQL to be healthy..."
+          until [ "$(docker inspect -f '{{.State.Health.Status}}' bindplane-postgres)" == "healthy" ]; do
+            echo "PostgreSQL is not ready yet - sleeping for 2 seconds"
+            sleep 2
+          done
+          echo "PostgreSQL is healthy and ready!"
+
       - name: Start BindPlane
         run: |
           docker run \
             -d \
             --name bindplane \
+            --network bindplane \
             -e BINDPLANE_USERNAME=admin \
             -e BINDPLANE_PASSWORD=admin \
             -e BINDPLANE_REMOTE_URL=https://${MAIN_IP}:3001 \
@@ -132,6 +161,10 @@ jobs:
             -e BINDPLANE_LICENSE="${BINDPLANE_LICENSE}" \
             -e BINDPLANE_TRANSFORM_AGENT_ENABLE_REMOTE=true \
             -e BINDPLANE_TRANSFORM_AGENT_REMOTE_AGENTS=transform:4568 \
+            -e BINDPLANE_POSTGRES_HOST=bindplane-postgres \
+            -e BINDPLANE_POSTGRES_USER=bindplane \
+            -e BINDPLANE_POSTGRES_PASSWORD=bindplane \
+            -e BINDPLANE_POSTGRES_DB=bindplane \
             -p 3001:3001 \
             -v $(pwd)/step/bindplane.crt:/bindplane.crt \
             -v $(pwd)/step/bindplane.key:/bindplane.key \
