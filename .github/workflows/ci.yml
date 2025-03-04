@@ -208,6 +208,3 @@ jobs:
       - name: Debug Container Logs
         if: always()
         run: docker logs bindplane
-
-      - name: Delete Docker Network
-        run: docker network rm bindplane
