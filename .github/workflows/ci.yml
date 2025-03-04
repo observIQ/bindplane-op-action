@@ -128,8 +128,21 @@ jobs:
             -e POSTGRES_USER=bindplane \
             -e POSTGRES_PASSWORD=bindplane \
             -e POSTGRES_DB=bindplane \
+            --health-cmd="pg_isready -U bindplane" \
+            --health-interval=5s \
+            --health-timeout=5s \
+            --health-retries=5 \
             -p 5432:5432 \
             postgres:16
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          echo "Waiting for PostgreSQL to be healthy..."
+          until [ "$(docker inspect -f '{{.State.Health.Status}}' bindplane-postgres)" == "healthy" ]; do
+            echo "PostgreSQL is not ready yet - sleeping for 2 seconds"
+            sleep 2
+          done
+          echo "PostgreSQL is healthy and ready!"
 
       - name: Start BindPlane
         run: |
