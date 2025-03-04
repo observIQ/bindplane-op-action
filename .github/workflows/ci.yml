@@ -148,7 +148,7 @@ jobs:
             -e BINDPLANE_LICENSE="${BINDPLANE_LICENSE}" \
             -e BINDPLANE_TRANSFORM_AGENT_ENABLE_REMOTE=true \
             -e BINDPLANE_TRANSFORM_AGENT_REMOTE_AGENTS=transform:4568 \
-            -e BINDPLANE_POSTGRES_HOST=localhost \
+            -e BINDPLANE_POSTGRES_HOST=bindplane-postgres \
             -e BINDPLANE_POSTGRES_USER=bindplane \
             -e BINDPLANE_POSTGRES_PASSWORD=bindplane \
             -e BINDPLANE_POSTGRES_DB=bindplane \
