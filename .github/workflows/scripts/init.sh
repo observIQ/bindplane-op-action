@@ -39,3 +39,10 @@ else
         --key step/bindplane.key \
         --cert step/bindplane.crt
 fi
+
+curl -v -k \
+        -u admin:admin \
+        https://localhost:3001/v1/source-types \
+        --key step/bindplane.key \
+        --cert step/bindplane.crt
+sleep 20
