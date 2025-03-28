@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
@@ -62,7 +62,7 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           go install github.com/uw-labs/lichen@v0.1.7
           lichen --config=../../.github/license.yaml action
-      
+
   test:
     runs-on: ubuntu-20.04
     strategy:
@@ -114,7 +114,7 @@ jobs:
             echo EOF
           } >> "$GITHUB_ENV"
 
-      - name: Pull BindPlane
+      - name: Pull Bindplane
         run: docker pull ghcr.io/observiq/bindplane-ee:${{ matrix.bindplane_versions }}
 
       - name: Create Docker Network
@@ -145,7 +145,7 @@ jobs:
           done
           echo "PostgreSQL is healthy and ready!"
 
-      - name: Start BindPlane
+      - name: Start Bindplane
         run: |
           docker run \
             -d \
@@ -174,7 +174,7 @@ jobs:
         env:
           BINDPLANE_LICENSE: ${{ secrets.BINDPLANE_LICENSE }}
 
-      - name: Init BindPlane Account or Organization
+      - name: Init Bindplane Account or Organization
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 1
@@ -183,13 +183,13 @@ jobs:
           shell: bash
           command: .github/workflows/scripts/init.sh ${{ matrix.bindplane_versions }}
 
-      - name: Run BindPlane Action
+      - name: Run Bindplane Action
         # This should be replaced with a release action.
         # <organization>/<repository>@<tag>
         uses: ./
         with:
           # These values are hardcode to match the test instance used by
-          # this workflow. The instance does not persist. Consumers of 
+          # this workflow. The instance does not persist. Consumers of
           # this action should always use secrets when passing in the remote
           # url, bindplane_username, bindplane_password or api key.
           #
