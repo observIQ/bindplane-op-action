@@ -1,27 +1,27 @@
-name: 'BindPlane OP Action'
-description: 'GitHub Action for BindPlane OP.'
+name: 'Bindplane Action'
+description: 'GitHub Action for Bindplane.'
 author: 'observIQ'
 
 inputs:
   bindplane_remote_url:
-    description: 'The URL that will be used to connect to BindPlane OP'
+    description: 'The URL that will be used to connect to Bindplane'
     required: true
   bindplane_api_key:
-    description: 'The BindPlane OP API key that will be used to authenticate to BindPlane OP'
+    description: 'The Bindplane API key that will be used to authenticate to Bindplane'
   bindplane_username:
-    description: 'The BindPlane OP bindplane_username that will be used to authenticate to BindPlane OP'
+    description: 'The Bindplane bindplane_username that will be used to authenticate to Bindplane'
   bindplane_password:
-    description: 'The BindPlane OP bindplane_password that will be used to authenticate to BindPlane OP'
+    description: 'The Bindplane bindplane_password that will be used to authenticate to Bindplane'
   target_branch:
     description: 'Resource apply and OTEL config write back will only happen when this branch is the current branch of the action'
   destination_path:
-    description: 'Path to the file which contains the BindPlane destination resources'
+    description: 'Path to the file which contains the Bindplane destination resources'
   source_path:
-    description: 'Path to the file which contains the BindPlane source resources'
+    description: 'Path to the file which contains the Bindplane source resources'
   processor_path:
-    description: 'Path to the file which contains the BindPlane processor resources'
+    description: 'Path to the file which contains the Bindplane processor resources'
   configuration_path:
-    description: 'Path to the file which contains the BindPlane configuration resources'
+    description: 'Path to the file which contains the Bindplane configuration resources'
   enable_otel_config_write_back:
     description: 'Enable OTEL raw config write back'
     default: false
@@ -35,7 +35,7 @@ inputs:
     description: 'When enabled, the action will trigger a rollout for all configurations that have been updated'
     default: false
   tls_ca_cert:
-    description: 'The CA certificate to use when connecting to BindPlane OP'
+    description: 'The CA certificate to use when connecting to Bindplane'
   github_url:
     description: 'The GitHub URL to use when connecting to GitHub'
 

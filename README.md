@@ -2,34 +2,33 @@
 
 # bindplane-op-action
 
-The BindPlane OP action can be used to deploy configurations to your BindPlane OP
+The Bindplane action can be used to deploy configurations to your Bindplane
 server. It also supports exporting the OpenTelemetry configurations back to the repository.
 
 ## Prerequisites
 
-BindPlane requires a license. You can request a free license [here](https://observiq.com/download).
+Bindplane requires a license. You can request a free license [here](https://observiq.com/download).
 
 ## Configuration
 
-| Parameter                     | Default    | Description                     |
-| :---------------------------- | :--------- | :------------------------------ |
-| bindplane_remote_url          | required   | The endpoint that will be used to connect to BindPalne OP. |
-| bindplane_api_key             |            | API key used to authenticate to BindPlane. Required when BindPlane multi account is enabled or when running on BindPlane Cloud |
-| bindplane_username            |            | Username used to authenticate to BindPlane. Not required if API key is set. |
-| bindplane_password            |            | Password used to authenticate to BindPlane.
-| target_branch                 | required   | The branch that the action will use when applying resources to bindplane or when writing otel configs back to the repo. |
-| destination_path              | required   | Path to the file which contains the BindPlane destination resources |
-| source_path                   |            | Path to the file which contains the BindPlane source resources |
-| processor_path                |            | Path to the file which contains the BindPlane processor resources |
-| configuration_path            | required   | Path to the file which contains the BindPlane configuration resources |
-| enable_otel_config_write_back | `false`    | Whether or not the action should write the raw OpenTelemetry configurations back to the repository. | 
-| configuration_output_dir      |            | When write back is enabled, this is the path that will be written to. |
-| configuration_output_branch   |            | The branch to write the OTEL configuration resources to. If unset, target_branch will be used. |
-| token                         |            | The Github token that will be used to read and write to the repo. Usually secrets.GITHUB_TOKEN is sufficient. Requires the `contents.write` permission. Alternatively, you can set `github_url`, which should contain your access token. |
-| enable_auto_rollout           | `false`    | When enabled, the action will trigger a rollout for any configuration that has been updated. |
-| tls_ca_cert                   |            | The contents of a TLS certificate authority, usually from a secret. See the [TLS](#tls) section. |
-| github_url                    |            | Optional URL to use when cloning the repository. Should be of the form `"https://{GITHUB_ACTOR}:{TOKEN}@{GITHUB_HOST}/{GITHUB_REPOSITORY}.git`. When set, `token` will not be used. |
-
+| Parameter                     | Default  | Description                                                                                                                                                                                                                              |
+| :---------------------------- | :------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| bindplane_remote_url          | required | The endpoint that will be used to connect to BindPalne OP.                                                                                                                                                                               |
+| bindplane_api_key             |          | API key used to authenticate to Bindplane. Required when Bindplane multi account is enabled or when running on Bindplane Cloud                                                                                                           |
+| bindplane_username            |          | Username used to authenticate to Bindplane. Not required if API key is set.                                                                                                                                                              |
+| bindplane_password            |          | Password used to authenticate to Bindplane.                                                                                                                                                                                              |
+| target_branch                 | required | The branch that the action will use when applying resources to bindplane or when writing otel configs back to the repo.                                                                                                                  |
+| destination_path              | required | Path to the file which contains the Bindplane destination resources                                                                                                                                                                      |
+| source_path                   |          | Path to the file which contains the Bindplane source resources                                                                                                                                                                           |
+| processor_path                |          | Path to the file which contains the Bindplane processor resources                                                                                                                                                                        |
+| configuration_path            | required | Path to the file which contains the Bindplane configuration resources                                                                                                                                                                    |
+| enable_otel_config_write_back | `false`  | Whether or not the action should write the raw OpenTelemetry configurations back to the repository.                                                                                                                                      |
+| configuration_output_dir      |          | When write back is enabled, this is the path that will be written to.                                                                                                                                                                    |
+| configuration_output_branch   |          | The branch to write the OTEL configuration resources to. If unset, target_branch will be used.                                                                                                                                           |
+| token                         |          | The Github token that will be used to read and write to the repo. Usually secrets.GITHUB_TOKEN is sufficient. Requires the `contents.write` permission. Alternatively, you can set `github_url`, which should contain your access token. |
+| enable_auto_rollout           | `false`  | When enabled, the action will trigger a rollout for any configuration that has been updated.                                                                                                                                             |
+| tls_ca_cert                   |          | The contents of a TLS certificate authority, usually from a secret. See the [TLS](#tls) section.                                                                                                                                         |
+| github_url                    |          | Optional URL to use when cloning the repository. Should be of the form `"https://{GITHUB_ACTOR}:{TOKEN}@{GITHUB_HOST}/{GITHUB_REPOSITORY}.git`. When set, `token` will not be used.                                                      |
 
 ## Usage
 
@@ -125,7 +124,7 @@ using a TLS endpoint (`https`).
     bindplane_password: ${{ secrets.BINDPLANE_PASSWORD }}
     target_branch: main
     destination_path: destination.yaml
-    configuration_path: configuration.yaml     
+    configuration_path: configuration.yaml
 ```
 
 ### Progressive Rollouts

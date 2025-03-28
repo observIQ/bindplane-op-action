@@ -443,7 +443,7 @@ func (a *Action) WriteBack() error {
 		}
 	}
 
-	commitMessage := "BindPlane OP Action: Update OTEL Configs"
+	commitMessage := "Bindplane Action: Update OTEL Configs"
 	commitOptions := &git.CommitOptions{
 		Author: &object.Signature{
 			Name:  "bindplane-op-action",

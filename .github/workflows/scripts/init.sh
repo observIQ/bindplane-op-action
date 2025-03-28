@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script initializes the BindPlane API with an organization or account
+# This script initializes the Bindplane API with an organization or account
 # depending on the version. Pre 1.59.0 was account based, post 1.59.0 is
 # organization based.
 
@@ -14,7 +14,7 @@ fi
 BINDPLANE_VERSION=$1
 ORGS=false
 
-echo "Initializing BindPlane $BINDPLANE_VERSION"
+echo "Initializing Bindplane $BINDPLANE_VERSION"
 
 if [[ $(printf '%s\n' "$BINDPLANE_VERSION" "1.58.0" | sort -V | head -n1) == "1.58.0" && "$BINDPLANE_VERSION" != "1.58.0" ]]; then
     ORGS=true
