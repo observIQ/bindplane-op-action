@@ -203,13 +203,13 @@ jobs:
           bindplane_username: admin
           bindplane_password: admin
           destination_path: test/resources/destinations/resource.yaml
-          configuration_path: test/resources/configurations/resource.yaml
-          configuration_output_dir: test/otel/${{ matrix.bindplane_versions }}
-          configuration_output_branch: otel-raw-configs
+          #configuration_path: test/resources/configurations/resource.yaml
+          #configuration_output_dir: test/otel/${{ matrix.bindplane_versions }}
+          #configuration_output_branch: otel-raw-configs
           target_branch: main
           # Token should have contents: write permissions
           token: ${{ secrets.GITHUB_TOKEN }}
-          enable_otel_config_write_back: true
+          #enable_otel_config_write_back: true
           enable_auto_rollout: true
           # Generally this would come from a secret, but the certificate
           # was created in this workflow.
