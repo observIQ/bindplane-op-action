@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"path/filepath"
 
 	"github.com/observiq/bindplane-op-action/action"
 	"github.com/observiq/bindplane-op-action/internal/client/model"
@@ -137,13 +136,12 @@ func validateFilePaths() error {
 			continue
 		}
 
-		matches, err := filepath.Glob(path)
+		_, err := os.Stat(path)
 		if err != nil {
-			return fmt.Errorf("glob %s path %s: %w", kind, path, err)
-		}
-
-		if matches == nil {
-			return fmt.Errorf("%s path %s does not exist or did not match any files with globbing", kind, path)
+			if os.IsNotExist(err) {
+				return fmt.Errorf("%s path %s does not exist", kind, path)
+			}
+			return fmt.Errorf("stat %s path %s: %w", kind, path, err)
 		}
 	}
 

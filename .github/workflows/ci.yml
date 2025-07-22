@@ -72,7 +72,6 @@ jobs:
         # When writing back to the repo, we write to directories based
         # on the bindplane version.
         bindplane_versions:
-          - 1.45.0 # keep
           - 1.55.0 # keep
           - 1.59.0 # organizations and projects
           - 1.65.0
@@ -206,13 +205,31 @@ jobs:
           configuration_path: test/resources/configurations/resource.yaml
           configuration_output_dir: test/otel/${{ matrix.bindplane_versions }}
           configuration_output_branch: otel-raw-configs
-          target_branch: main
+          target_branch: ${{ github.head_ref || github.ref_name }}
           # Token should have contents: write permissions
           token: ${{ secrets.GITHUB_TOKEN }}
           enable_otel_config_write_back: true
           enable_auto_rollout: true
           # Generally this would come from a secret, but the certificate
           # was created in this workflow.
+          tls_ca_cert: ${{ env.TLS_CA_CERT }}
+
+      - name: Cleanup out dir
+        run: sudo rm -rf out_repo
+
+      - name: Run Bindplane Action (Directory)
+        uses: ./
+        with:
+          bindplane_remote_url: https://${{ env.MAIN_IP }}:3001
+          bindplane_username: admin
+          bindplane_password: admin
+          # This is a directory
+          processor_path: test/resources/processors
+          # Should detect the resource in destinations/ and the
+          # two resources in the 'multi' sub directory
+          destination_path: test/resources/destinations
+          target_branch: ${{ github.head_ref || github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           tls_ca_cert: ${{ env.TLS_CA_CERT }}
 
       - name: Get Resources
