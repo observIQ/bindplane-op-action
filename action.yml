@@ -15,13 +15,13 @@ inputs:
   target_branch:
     description: 'Resource apply and OTEL config write back will only happen when this branch is the current branch of the action'
   destination_path:
-    description: 'Path to the file which contains the Bindplane destination resources'
+    description: 'Path to the file or directory which contains the Bindplane destination resources'
   source_path:
-    description: 'Path to the file which contains the Bindplane source resources'
+    description: 'Path to the file or directory which contains the Bindplane source resources'
   processor_path:
-    description: 'Path to the file which contains the Bindplane processor resources'
+    description: 'Path to the file or directory which contains the Bindplane processor resources'
   configuration_path:
-    description: 'Path to the file which contains the Bindplane configuration resources'
+    description: 'Path to the file or directory which contains the Bindplane configuration resources'
   enable_otel_config_write_back:
     description: 'Enable OTEL raw config write back'
     default: false

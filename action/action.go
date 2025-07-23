@@ -205,17 +205,20 @@ func (a *Action) TestConnection() (version.Version, error) {
 
 // Run executes the action
 func (a *Action) Run() error {
+	a.Logger.Info("Applying resources to Bindplane")
 	if err := a.Apply(); err != nil {
 		return fmt.Errorf("failed to apply resources: %w", err)
 	}
 
 	if a.autoRollout {
+		a.Logger.Info("Auto rollout enabled, rolling out any pending changes")
 		if err := a.AutoRollout(); err != nil {
 			return fmt.Errorf("failed to rollout configuration: %s", err)
 		}
 	}
 
 	if a.enableWriteBack {
+		a.Logger.Info("Write back enabled, writing back configuration")
 		if err := a.WriteBack(); err != nil {
 			return fmt.Errorf("failed to write back configuration: %s", err)
 		}
@@ -239,8 +242,8 @@ func (a *Action) RunRollout(config string) error {
 // applied last because they will reference other resources.
 func (a *Action) Apply() error {
 	if a.destinationPath != "" {
-		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindDestination)), zap.String("file", a.destinationPath))
-		err := a.apply(a.destinationPath)
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindDestination)), zap.String("path", a.destinationPath))
+		err := a.applyAll(a.destinationPath)
 		if err != nil {
 			return fmt.Errorf("destinations: %w", err)
 		}
@@ -249,8 +252,8 @@ func (a *Action) Apply() error {
 	}
 
 	if a.sourcePath != "" {
-		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindSource)), zap.String("file", a.sourcePath))
-		err := a.apply(a.sourcePath)
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindSource)), zap.String("path", a.sourcePath))
+		err := a.applyAll(a.sourcePath)
 		if err != nil {
 			return fmt.Errorf("sources: %w", err)
 		}
@@ -259,8 +262,8 @@ func (a *Action) Apply() error {
 	}
 
 	if a.processorPath != "" {
-		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindProcessor)), zap.String("file", a.processorPath))
-		err := a.apply(a.processorPath)
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindProcessor)), zap.String("path", a.processorPath))
+		err := a.applyAll(a.processorPath)
 		if err != nil {
 			return fmt.Errorf("processors: %w", err)
 		}
@@ -269,8 +272,8 @@ func (a *Action) Apply() error {
 	}
 
 	if a.configurationPath != "" {
-		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindConfiguration)), zap.String("file", a.configurationPath))
-		err := a.apply(a.configurationPath)
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindConfiguration)), zap.String("path", a.configurationPath))
+		err := a.applyAll(a.configurationPath)
 		if err != nil {
 			return fmt.Errorf("configuration: %w", err)
 		}
@@ -281,8 +284,47 @@ func (a *Action) Apply() error {
 	return nil
 }
 
-// apply takes a file path and applies it to the BindPlane API. If an
-// error is found in the response status, it will be returned
+// applyAll takes a file or directory path and applies all resources.
+// It recursively walks through all subdirectories and applies YAML files.
+func (a *Action) applyAll(path string) error {
+	info, err := os.Stat(path)
+	if err != nil {
+		return fmt.Errorf("stat path %s: %w", path, err)
+	}
+
+	if !info.IsDir() {
+		return a.apply(path)
+	}
+
+	a.Logger.Info("Walking directory", zap.String("path", path))
+
+	err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+		if err != nil {
+			a.Logger.Error("Error walking path", zap.String("path", p), zap.Error(err))
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		ext := filepath.Ext(p)
+		if ext != ".yaml" && ext != ".yml" {
+			return nil
+		}
+
+		if err := a.apply(p); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	return err
+}
+
+// apply takes a file path and applies it to the BindPlane API.
+// If an error is found in the response status, it will be returned.
 func (a *Action) apply(path string) error {
 	resources, err := decodeAnyResourceFile(path)
 	if err != nil {
@@ -303,13 +345,6 @@ func (a *Action) apply(path string) error {
 		id := s.Resource.Metadata.ID
 		kind := s.Resource.Kind
 		status := s.Status
-		a.Logger.Info(
-			"Resource applied",
-			zap.String("name", name),
-			zap.String("id", id),
-			zap.String("kind", kind),
-			zap.String("status", string(status)),
-		)
 
 		// Attach the configuration resource to the state
 		// so we can use it for auto rollout
@@ -320,7 +355,13 @@ func (a *Action) apply(path string) error {
 
 		switch status {
 		case model.StatusUnchanged, model.StatusConfigured, model.StatusCreated:
-			a.Logger.Info("Applied resource", zap.String("name", name), zap.String("status", string(status)))
+			a.Logger.Info("Applied resource",
+				zap.String("id", id),
+				zap.String("kind", kind),
+				zap.String("name", name),
+				zap.String("status", string(status)),
+				zap.String("resource_path", path),
+			)
 			continue
 		case model.StatusInvalid:
 			return fmt.Errorf("invalid resource: %s: %s", name, s.Reason)

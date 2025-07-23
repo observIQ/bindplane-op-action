@@ -1,0 +1,15 @@
+apiVersion: bindplane.observiq.com/v1
+kind: Processor
+metadata:
+    name: tf-bindplane-filter-health
+spec:
+    type: filter-by-condition
+    parameters:
+        - name: telemetry_types
+          value:
+            - Logs
+        - name: action
+          value: exclude
+        - name: condition
+          value:
+            ottl: (body["path"] == "/health") and (body["status"] == 200)

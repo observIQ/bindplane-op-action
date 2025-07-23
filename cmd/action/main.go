@@ -72,11 +72,20 @@ func main() {
 		os.Exit(exitLoggerInitError)
 	}
 
-	branch := strings.Split(os.Getenv("GITHUB_REF"), "/")[2]
-	if branch != target_branch {
+	// Get the current branch from GITHUB_HEAD_REF or GITHUB_REF
+	currentBranch := os.Getenv("GITHUB_HEAD_REF")
+	if currentBranch == "" {
+		// Fallback to extracting from GITHUB_REF for non-PR contexts
+		refParts := strings.Split(os.Getenv("GITHUB_REF"), "/")
+		if len(refParts) >= 3 {
+			currentBranch = refParts[2]
+		}
+	}
+
+	if currentBranch != target_branch {
 		logger.Info(
 			"Skipping action, branch does not match target branch",
-			zap.String("branch", branch),
+			zap.String("branch", currentBranch),
 			zap.String("target_branch", target_branch),
 		)
 		os.Exit(0)
@@ -127,7 +136,7 @@ func main() {
 
 	if token != "" || github_url != "" {
 		// Retrieve the commit message from the head commit on the branch
-		message, err := commitMessage(github_url, branch, token)
+		message, err := commitMessage(github_url, currentBranch, token)
 		if err != nil {
 			logger.Error("error getting commit message", zap.Error(err))
 			os.Exit(exitClientError)

@@ -1,0 +1,14 @@
+apiVersion: bindplane.observiq.com/v1
+kind: Destination
+metadata:
+    name: debug
+spec:
+    type: custom
+    parameters:
+        - name: telemetry_types
+          value:
+            - Traces
+        - name: configuration
+          value: 'debug:'
+        - name: drop_raw_copy
+          value: true
