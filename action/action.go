@@ -297,59 +297,56 @@ func (a *Action) Apply() error {
 // It also supports glob patterns like "*.yaml" or "./resources/*.yaml".
 func (a *Action) applyAll(path string) error {
 	info, err := os.Stat(path)
-	if err != nil {
-		return fmt.Errorf("stat path %s: %w", path, err)
-	}
+	switch {
+	case err != nil:
+		if glob.ContainsGlobChars(path) {
+			matches, err := filepath.Glob(path)
+			if err != nil {
+				return fmt.Errorf("glob path %s: %w", path, err)
+			}
+			if len(matches) == 0 {
+				return fmt.Errorf("no matching files found when globbing %s", path)
+			}
 
-	if !info.IsDir() {
-		if !glob.ContainsGlobChars(path) {
-			return a.apply(path)
-		}
+			a.Logger.Info("Applying globbed resources", zap.String("path", path), zap.Int("matches", len(matches)))
 
-		matches, err := filepath.Glob(path)
-		if err != nil {
-			return fmt.Errorf("glob path %s: %w", path, err)
-		}
-		if len(matches) == 0 {
-			return fmt.Errorf("no matching files found when globbing %s", path)
-		}
-
-		a.Logger.Info("Applying globbed resources", zap.String("path", path), zap.Int("matches", len(matches)))
-
-		for _, match := range matches {
-			if err := a.apply(match); err != nil {
-				return err
+			for _, match := range matches {
+				if err := a.apply(match); err != nil {
+					return err
+				}
 			}
 		}
+		return fmt.Errorf("stat path %s: %w", path, err)
 
+	case !info.IsDir():
+		return a.apply(path)
+
+	default:
+		a.Logger.Info("Walking directory", zap.String("path", path))
+
+		err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+			if err != nil {
+				a.Logger.Error("Error walking path", zap.String("path", p), zap.Error(err))
+				return err
+			}
+
+			if info.IsDir() {
+				return nil
+			}
+
+			ext := filepath.Ext(p)
+			if ext != ".yaml" && ext != ".yml" {
+				return nil
+			}
+
+			return a.apply(p)
+		})
+
+		if err != nil {
+			return fmt.Errorf("walk path %s: %w", path, err)
+		}
 		return nil
 	}
-
-	a.Logger.Info("Walking directory", zap.String("path", path))
-
-	err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
-		if err != nil {
-			a.Logger.Error("Error walking path", zap.String("path", p), zap.Error(err))
-			return err
-		}
-
-		if info.IsDir() {
-			return nil
-		}
-
-		ext := filepath.Ext(p)
-		if ext != ".yaml" && ext != ".yml" {
-			return nil
-		}
-
-		if err := a.apply(p); err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	return err
 }
 
 // apply takes a file path and applies it to the BindPlane API.
