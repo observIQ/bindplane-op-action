@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path/filepath"
 
 	"github.com/observiq/bindplane-op-action/action"
 	"github.com/observiq/bindplane-op-action/internal/client/model"
+	"github.com/observiq/bindplane-op-action/internal/glob"
 )
 
 func validate() error {
@@ -136,12 +138,23 @@ func validateFilePaths() error {
 			continue
 		}
 
-		_, err := os.Stat(path)
-		if err != nil {
-			if os.IsNotExist(err) {
-				return fmt.Errorf("%s path %s does not exist", kind, path)
+		// Check if the path contains glob pattern characters
+		if glob.ContainsGlobChars(path) {
+			matches, err := filepath.Glob(path)
+			if err != nil {
+				return fmt.Errorf("globbing %s path %s: %w", kind, path, err)
 			}
-			return fmt.Errorf("stat %s path %s: %w", kind, path, err)
+			if len(matches) == 0 {
+				return fmt.Errorf("%s path %s does not match any files", kind, path)
+			}
+		} else {
+			_, err := os.Stat(path)
+			if err != nil {
+				if os.IsNotExist(err) {
+					return fmt.Errorf("%s path %s does not exist", kind, path)
+				}
+				return fmt.Errorf("stat %s path %s: %w", kind, path, err)
+			}
 		}
 	}
 

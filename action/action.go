@@ -14,6 +14,7 @@ import (
 	"github.com/observiq/bindplane-op-action/internal/client/config"
 	"github.com/observiq/bindplane-op-action/internal/client/model"
 	"github.com/observiq/bindplane-op-action/internal/client/version"
+	"github.com/observiq/bindplane-op-action/internal/glob"
 	"github.com/observiq/bindplane-op-action/internal/repo"
 	"gopkg.in/yaml.v3"
 
@@ -293,7 +294,30 @@ func (a *Action) Apply() error {
 
 // applyAll takes a file or directory path and applies all resources.
 // It recursively walks through all subdirectories and applies YAML files.
+// It also supports glob patterns like "*.yaml" or "./resources/*.yaml".
 func (a *Action) applyAll(path string) error {
+	// Check if the path contains glob characters
+	if glob.ContainsGlobChars(path) {
+		// Get all files that match the glob pattern
+		matches, err := filepath.Glob(path)
+		if err != nil {
+			return fmt.Errorf("glob path %s: %w", path, err)
+		}
+		if len(matches) == 0 {
+			return fmt.Errorf("no matching files found when globbing %s", path)
+		}
+
+		// Apply each matching file
+		for _, match := range matches {
+			if err := a.apply(match); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	// Original logic for directory/file paths
 	info, err := os.Stat(path)
 	if err != nil {
 		return fmt.Errorf("stat path %s: %w", path, err)
