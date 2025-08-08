@@ -296,9 +296,16 @@ func (a *Action) Apply() error {
 // It recursively walks through all subdirectories and applies YAML files.
 // It also supports glob patterns like "*.yaml" or "./resources/*.yaml".
 func (a *Action) applyAll(path string) error {
-	// Check if the path contains glob characters
-	if glob.ContainsGlobChars(path) {
-		// Get all files that match the glob pattern
+	info, err := os.Stat(path)
+	if err != nil {
+		return fmt.Errorf("stat path %s: %w", path, err)
+	}
+
+	if !info.IsDir() {
+		if !glob.ContainsGlobChars(path) {
+			return a.apply(path)
+		}
+
 		matches, err := filepath.Glob(path)
 		if err != nil {
 			return fmt.Errorf("glob path %s: %w", path, err)
@@ -307,7 +314,8 @@ func (a *Action) applyAll(path string) error {
 			return fmt.Errorf("no matching files found when globbing %s", path)
 		}
 
-		// Apply each matching file
+		a.Logger.Info("Applying globbed resources", zap.String("path", path), zap.Int("matches", len(matches)))
+
 		for _, match := range matches {
 			if err := a.apply(match); err != nil {
 				return err
@@ -315,16 +323,6 @@ func (a *Action) applyAll(path string) error {
 		}
 
 		return nil
-	}
-
-	// Original logic for directory/file paths
-	info, err := os.Stat(path)
-	if err != nil {
-		return fmt.Errorf("stat path %s: %w", path, err)
-	}
-
-	if !info.IsDir() {
-		return a.apply(path)
 	}
 
 	a.Logger.Info("Walking directory", zap.String("path", path))
