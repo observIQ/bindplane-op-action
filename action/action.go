@@ -315,6 +315,7 @@ func (a *Action) applyAll(path string) error {
 					return err
 				}
 			}
+			return nil
 		}
 		return fmt.Errorf("stat path %s: %w", path, err)
 
