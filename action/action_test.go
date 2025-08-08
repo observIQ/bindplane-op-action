@@ -109,6 +109,46 @@ func TestWithBindPlaneUsername(t *testing.T) {
 	}
 }
 
+func TestWithUserAgent(t *testing.T) {
+	cases := []struct {
+		name   string
+		input  string
+		expect *Action
+	}{
+		{
+			"Set user agent",
+			"my-custom-agent",
+			&Action{
+				config: config.Config{
+					Network: config.Network{
+						UserAgent: "my-custom-agent",
+					},
+				},
+			},
+		},
+		{
+			"Set empty user agent",
+			"",
+			&Action{
+				config: config.Config{
+					Network: config.Network{
+						UserAgent: "",
+					},
+				},
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			a := &Action{}
+			opt := WithUserAgent(tc.input)
+			opt(a)
+			require.Equal(t, tc.expect, a)
+		})
+	}
+}
+
 func TestWithBindPlanePassword(t *testing.T) {
 	cases := []struct {
 		name   string

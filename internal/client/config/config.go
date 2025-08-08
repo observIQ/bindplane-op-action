@@ -14,6 +14,7 @@ type Auth struct {
 type Network struct {
 	RemoteURL            string
 	CertificateAuthority []string
+	UserAgent            string
 	TLS
 }
 

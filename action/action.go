@@ -139,6 +139,13 @@ func WithConfigurationOutputBranch(b string) Option {
 	}
 }
 
+// WithUserAgent sets the user agent for the BindPlane client
+func WithUserAgent(ua string) Option {
+	return func(a *Action) {
+		a.config.Network.UserAgent = ua
+	}
+}
+
 // New creates a new Action with a configured bindPlane client
 func New(logger *zap.Logger, opts ...Option) (*Action, error) {
 	action := &Action{}
@@ -337,7 +344,7 @@ func (a *Action) apply(path string) error {
 	}
 
 	if resp == nil {
-		return fmt.Errorf("nil response from client: %s", BugError)
+		return fmt.Errorf("nil response from client while applying path %s: %s", path, BugError)
 	}
 
 	for _, s := range resp {
