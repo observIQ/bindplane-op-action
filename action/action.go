@@ -14,6 +14,7 @@ import (
 	"github.com/observiq/bindplane-op-action/internal/client/config"
 	"github.com/observiq/bindplane-op-action/internal/client/model"
 	"github.com/observiq/bindplane-op-action/internal/client/version"
+	"github.com/observiq/bindplane-op-action/internal/glob"
 	"github.com/observiq/bindplane-op-action/internal/repo"
 	"gopkg.in/yaml.v3"
 
@@ -136,6 +137,13 @@ func WithAutoRollout(b bool) Option {
 func WithConfigurationOutputBranch(b string) Option {
 	return func(a *Action) {
 		a.configurationOutputBranch = b
+	}
+}
+
+// WithUserAgent sets the user agent for the BindPlane client
+func WithUserAgent(ua string) Option {
+	return func(a *Action) {
+		a.config.Network.UserAgent = ua
 	}
 }
 
@@ -286,41 +294,60 @@ func (a *Action) Apply() error {
 
 // applyAll takes a file or directory path and applies all resources.
 // It recursively walks through all subdirectories and applies YAML files.
+// It also supports glob patterns like "*.yaml" or "./resources/*.yaml".
 func (a *Action) applyAll(path string) error {
 	info, err := os.Stat(path)
-	if err != nil {
+	switch {
+	case err != nil:
+		if glob.ContainsGlobChars(path) {
+			matches, err := filepath.Glob(path)
+			if err != nil {
+				return fmt.Errorf("glob path %s: %w", path, err)
+			}
+			if len(matches) == 0 {
+				return fmt.Errorf("no matching files found when globbing %s", path)
+			}
+
+			a.Logger.Info("Applying globbed resources", zap.String("path", path), zap.Int("matches", len(matches)))
+
+			for _, match := range matches {
+				if err := a.apply(match); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
 		return fmt.Errorf("stat path %s: %w", path, err)
-	}
 
-	if !info.IsDir() {
+	case !info.IsDir():
 		return a.apply(path)
-	}
 
-	a.Logger.Info("Walking directory", zap.String("path", path))
+	default:
+		a.Logger.Info("Walking directory", zap.String("path", path))
 
-	err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+		err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+			if err != nil {
+				a.Logger.Error("Error walking path", zap.String("path", p), zap.Error(err))
+				return err
+			}
+
+			if info.IsDir() {
+				return nil
+			}
+
+			ext := filepath.Ext(p)
+			if ext != ".yaml" && ext != ".yml" {
+				return nil
+			}
+
+			return a.apply(p)
+		})
+
 		if err != nil {
-			a.Logger.Error("Error walking path", zap.String("path", p), zap.Error(err))
-			return err
+			return fmt.Errorf("walk path %s: %w", path, err)
 		}
-
-		if info.IsDir() {
-			return nil
-		}
-
-		ext := filepath.Ext(p)
-		if ext != ".yaml" && ext != ".yml" {
-			return nil
-		}
-
-		if err := a.apply(p); err != nil {
-			return err
-		}
-
 		return nil
-	})
-
-	return err
+	}
 }
 
 // apply takes a file path and applies it to the BindPlane API.
@@ -337,7 +364,7 @@ func (a *Action) apply(path string) error {
 	}
 
 	if resp == nil {
-		return fmt.Errorf("nil response from client: %s", BugError)
+		return fmt.Errorf("nil response from client while applying path %s: %s", path, BugError)
 	}
 
 	for _, s := range resp {

@@ -16,7 +16,7 @@ import (
 // include the binary name itself (which is returned by os.Args[0]).
 // When adding new arguments to the action, this number should be updated
 // and new global variables should be declared and handled in parseArgs().
-const argCount = 16
+const argCount = 17
 
 // Global variables will be used when creating the action configuration. These
 // are the options set by the user. Their order in parseArgs() is important.
@@ -37,6 +37,7 @@ var (
 	source_path                   string
 	processor_path                string
 	github_url                    string
+	user_agent                    string
 )
 
 const (
@@ -100,6 +101,7 @@ func main() {
 		action.WithBindPlaneUsername(bindplane_username),
 		action.WithBindPlanePassword(bindplane_password),
 		action.WithTLSCACert(tls_ca_cert),
+		action.WithUserAgent(user_agent),
 
 		// Base action options for reading resources
 		// from the repo, to apply to bindplane

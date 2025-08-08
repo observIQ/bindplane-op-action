@@ -38,6 +38,9 @@ inputs:
     description: 'The CA certificate to use when connecting to Bindplane'
   github_url:
     description: 'The GitHub URL to use when connecting to GitHub'
+  user_agent:
+    description: 'The user agent string to use when making requests to BindPlane'
+    default: 'bindplane-op-action'
 
 runs:
   using: 'docker'
@@ -60,3 +63,4 @@ runs:
     - ${{ inputs.source_path }}
     - ${{ inputs.processor_path }}
     - ${{ inputs.github_url }}
+    - ${{ inputs.user_agent }}

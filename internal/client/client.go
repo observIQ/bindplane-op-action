@@ -19,7 +19,8 @@ import (
 const (
 	KeyHeader = "X-Bindplane-Api-Key"
 
-	DefaultTimeout = time.Second * 60
+	DefaultTimeout   = time.Second * 60
+	DefaultUserAgent = "bindplane-op-action"
 )
 
 type BindPlane struct {
@@ -43,6 +44,12 @@ func NewBindPlane(config *config.Config, logger *zap.Logger) (*BindPlane, error)
 	}
 
 	restryClient.SetBaseURL(fmt.Sprintf("%s/v1", config.Network.RemoteURL))
+
+	userAgent := DefaultUserAgent
+	if config.Network.UserAgent != "" {
+		userAgent = config.Network.UserAgent
+	}
+	restryClient.SetHeader("User-Agent", userAgent)
 
 	tlsConfig := &tls.Config{
 		MinVersion: tls.VersionTLS13,
