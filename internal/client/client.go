@@ -6,6 +6,8 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/observiq/bindplane-op-action/internal/client/config"
@@ -29,6 +31,18 @@ type BindPlane struct {
 	client *resty.Client
 }
 
+func buildBaseURL(remoteURL string) (string, error) {
+	parsedURL, err := url.Parse(remoteURL)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse remote URL: %w", err)
+	}
+
+	// Ensure the path doesn't end with a slash
+	parsedURL.Path = strings.TrimRight(parsedURL.Path, "/")
+
+	return parsedURL.String(), nil
+}
+
 // NewBindPlane takes a config and logger and returns a configured BindPlane client
 func NewBindPlane(config *config.Config, logger *zap.Logger) (*BindPlane, error) {
 	restryClient := resty.New()
@@ -43,7 +57,11 @@ func NewBindPlane(config *config.Config, logger *zap.Logger) (*BindPlane, error)
 		restryClient.SetHeader(KeyHeader, config.Auth.APIKey)
 	}
 
-	restryClient.SetBaseURL(fmt.Sprintf("%s/v1", config.Network.RemoteURL))
+	baseURL, err := buildBaseURL(config.Network.RemoteURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build base URL: %w", err)
+	}
+	restryClient.SetBaseURL(fmt.Sprintf("%s/v1", baseURL))
 
 	userAgent := DefaultUserAgent
 	if config.Network.UserAgent != "" {
