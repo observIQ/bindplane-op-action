@@ -16,7 +16,7 @@ import (
 // include the binary name itself (which is returned by os.Args[0]).
 // When adding new arguments to the action, this number should be updated
 // and new global variables should be declared and handled in parseArgs().
-const argCount = 17
+const argCount = 19
 
 // Global variables will be used when creating the action configuration. These
 // are the options set by the user. Their order in parseArgs() is important.
@@ -36,6 +36,8 @@ var (
 	tls_ca_cert                   string
 	source_path                   string
 	processor_path                string
+	connector_path                string
+	fleet_path                    string
 	github_url                    string
 	user_agent                    string
 )
@@ -108,6 +110,8 @@ func main() {
 		action.WithDestinationPath(destination_path),
 		action.WithSourcePath(source_path),
 		action.WithProcessorPath(processor_path),
+		action.WithConnectorPath(connector_path),
+		action.WithFleetPath(fleet_path),
 		action.WithConfigurationPath(configuration_path),
 
 		// Auto rollout option(s)

@@ -1,0 +1,16 @@
+---
+apiVersion: bindplane.observiq.com/v1
+kind: Connector
+metadata:
+    name: test-routing-connector
+spec:
+    type: routing
+    parameters: []
+---
+apiVersion: bindplane.observiq.com/v1
+kind: Connector
+metadata:
+    name: test-connector
+spec:
+    type: routing
+    parameters: []

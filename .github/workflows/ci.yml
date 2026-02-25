@@ -199,6 +199,8 @@ jobs:
           bindplane_username: admin
           bindplane_password: admin
           destination_path: test/resources/destinations/resource.yaml
+          connector_path: test/resources/connectors/resource.yaml
+          fleet_path: test/resources/fleets/resource.yaml
           configuration_path: test/resources/configurations/resource.yaml
           configuration_output_dir: test/otel/${{ matrix.bindplane_versions }}
           configuration_output_branch: otel-raw-configs
@@ -222,6 +224,8 @@ jobs:
           bindplane_password: admin
           # This is a directory
           processor_path: test/resources/processors
+          connector_path: test/resources/connectors
+          fleet_path: test/resources/fleets
           # Should detect the resource in destinations/ and the
           # two resources in the 'multi' sub directory
           destination_path: test/resources/destinations
@@ -234,6 +238,8 @@ jobs:
         run: |
           docker exec bindplane /bindplane get destinations --tls-ca /ca.crt
           docker exec bindplane /bindplane get configurations --tls-ca /ca.crt
+          docker exec bindplane /bindplane get connector --tls-ca /ca.crt
+          docker exec bindplane /bindplane get fleet --tls-ca /ca.crt
 
       - name: Debug Container Logs
         if: always()

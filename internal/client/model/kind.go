@@ -7,4 +7,6 @@ const (
 	KindSource        Kind = "Source"
 	KindProcessor     Kind = "Processor"
 	KindDestination   Kind = "Destination"
+	KindConnector     Kind = "Connector"
+	KindFleet         Kind = "Fleet"
 )

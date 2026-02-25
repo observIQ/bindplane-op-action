@@ -312,6 +312,56 @@ func TestWithConfigurationPath(t *testing.T) {
 	}
 }
 
+func TestWithConnectorPath(t *testing.T) {
+	cases := []struct {
+		name   string
+		intput string
+		expect *Action
+	}{
+		{
+			"Set connector path",
+			"/tmp",
+			&Action{
+				connectorPath: "/tmp",
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			a := &Action{}
+			opt := WithConnectorPath(tc.intput)
+			opt(a)
+			require.Equal(t, tc.expect, a)
+		})
+	}
+}
+
+func TestWithFleetPath(t *testing.T) {
+	cases := []struct {
+		name   string
+		intput string
+		expect *Action
+	}{
+		{
+			"Set fleet path",
+			"/tmp",
+			&Action{
+				fleetPath: "/tmp",
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			a := &Action{}
+			opt := WithFleetPath(tc.intput)
+			opt(a)
+			require.Equal(t, tc.expect, a)
+		})
+	}
+}
+
 func TestWithEnableAutoRollout(t *testing.T) {
 	cases := []struct {
 		name   string
