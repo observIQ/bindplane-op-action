@@ -68,19 +68,28 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # This matrix allows us to test multiple bindplane versions.
-        # When writing back to the repo, we write to directories based
-        # on the bindplane version.
-        bindplane_versions:
-          - 1.55.0 # keep
-          - 1.59.0 # organizations and projects
-          - 1.65.0
-          - 1.73.0
-          - 1.80.0
-          - 1.86.0
-          - 1.89.3
-          - 1.96.0
-          - latest # keep
+        # This matrix allows us to test multiple bindplane versions with the
+        # correct set of resources. Connectors and fleets are only applied and
+        # queried when the version supports them.
+        include:
+          - bindplane_versions: 1.55.0
+            support_connectors: false
+            support_fleets: false
+          - bindplane_versions: 1.59.0
+            support_connectors: false
+            support_fleets: false
+          - bindplane_versions: 1.83.0
+            support_connectors: true
+            support_fleets: false
+          - bindplane_versions: 1.91.0
+            support_connectors: true
+            support_fleets: true
+          - bindplane_versions: 1.96.0
+            support_connectors: true
+            support_fleets: true
+          - bindplane_versions: latest
+            support_connectors: true
+            support_fleets: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -199,8 +208,8 @@ jobs:
           bindplane_username: admin
           bindplane_password: admin
           destination_path: test/resources/destinations/resource.yaml
-          connector_path: test/resources/connectors/resource.yaml
-          fleet_path: test/resources/fleets/resource.yaml
+          connector_path: ${{ matrix.support_connectors && 'test/resources/connectors/resource.yaml' || '' }}
+          fleet_path: ${{ matrix.support_fleets && 'test/resources/fleets/resource.yaml' || '' }}
           configuration_path: test/resources/configurations/resource.yaml
           configuration_output_dir: test/otel/${{ matrix.bindplane_versions }}
           configuration_output_branch: otel-raw-configs
@@ -224,8 +233,8 @@ jobs:
           bindplane_password: admin
           # This is a directory
           processor_path: test/resources/processors
-          connector_path: test/resources/connectors
-          fleet_path: test/resources/fleets
+          connector_path: ${{ matrix.support_connectors && 'test/resources/connectors' || '' }}
+          fleet_path: ${{ matrix.support_fleets && 'test/resources/fleets' || '' }}
           # Should detect the resource in destinations/ and the
           # two resources in the 'multi' sub directory
           destination_path: test/resources/destinations
@@ -233,12 +242,20 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tls_ca_cert: ${{ env.TLS_CA_CERT }}
 
-      - name: Get Resources
+      - name: Get Destinations and Configurations
         if: always()
         run: |
           docker exec bindplane /bindplane get destinations --tls-ca /ca.crt
           docker exec bindplane /bindplane get configurations --tls-ca /ca.crt
+
+      - name: Get Connectors
+        if: always() && matrix.support_connectors
+        run: |
           docker exec bindplane /bindplane get connector --tls-ca /ca.crt
+
+      - name: Get Fleets
+        if: always() && matrix.support_fleets
+        run: |
           docker exec bindplane /bindplane get fleet --tls-ca /ca.crt
 
       - name: Debug Container Logs
