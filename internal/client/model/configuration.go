@@ -20,7 +20,7 @@ type StatusType[T any] struct {
 }
 
 type ConfigurationStatus struct {
-	Rollout        Rollout `json:"rollout,omitempty" yaml:"rollout,omitempty" mapstructure:"rollout"`
+	Rollout        Rollout `json:"rollout" yaml:"rollout,omitempty" mapstructure:"rollout"`
 	CurrentVersion int     `json:"currentVersion,omitempty" yaml:"currentVersion,omitempty" mapstructure:"currentVersion"`
 	PendingVersion int     `json:"pendingVersion,omitempty" yaml:"pendingVersion,omitempty" mapstructure:"pendingVersion"`
 	Latest         bool    `json:"latest,omitempty" yaml:"latest,omitempty" mapstructure:"latest"`
@@ -37,5 +37,5 @@ type ConfigurationSpec struct {
 	Destinations        []ResourceConfiguration `json:"destinations,omitempty" yaml:"destinations,omitempty" mapstructure:"destinations"`
 	Extensions          []ResourceConfiguration `json:"extensions,omitempty" yaml:"extensions,omitempty" mapstructure:"extensions"`
 	Selector            AgentSelector           `json:"selector" yaml:"selector" mapstructure:"selector"`
-	Rollout             ResourceConfiguration   `json:"rollout,omitempty" yaml:"rollout,omitempty" mapstructure:"rollout"`
+	Rollout             ResourceConfiguration   `json:"rollout" yaml:"rollout,omitempty" mapstructure:"rollout"`
 }
