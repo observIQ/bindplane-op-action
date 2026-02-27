@@ -20,6 +20,10 @@ inputs:
     description: 'Path to the file or directory which contains the Bindplane source resources'
   processor_path:
     description: 'Path to the file or directory which contains the Bindplane processor resources'
+  connector_path:
+    description: 'Path to the file or directory which contains the Bindplane connector resources'
+  fleet_path:
+    description: 'Path to the file or directory which contains the Bindplane fleet resources'
   configuration_path:
     description: 'Path to the file or directory which contains the Bindplane configuration resources'
   enable_otel_config_write_back:
@@ -62,5 +66,7 @@ runs:
     - ${{ inputs.tls_ca_cert }}
     - ${{ inputs.source_path }}
     - ${{ inputs.processor_path }}
+    - ${{ inputs.connector_path }}
+    - ${{ inputs.fleet_path }}
     - ${{ inputs.github_url }}
     - ${{ inputs.user_agent }}

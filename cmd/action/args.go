@@ -18,7 +18,7 @@ func parseArgs() error {
 	// Add one to account for arg 0 being the binary name
 	count := argCount + 1
 	if len(args) != count {
-		return fmt.Errorf("Not enough arguments, expected 18, got %d. %s.", len(args), action.BugError)
+		return fmt.Errorf("Not enough arguments, expected 20, got %d. %s.", len(args), action.BugError)
 	}
 
 	// First arg is always the binary name, so we skip it. We could
@@ -63,8 +63,10 @@ func parseArgs() error {
 
 	source_path = args[14]
 	processor_path = args[15]
-	github_url = args[16]
-	user_agent = args[17]
+	connector_path = args[16]
+	fleet_path = args[17]
+	github_url = args[18]
+	user_agent = args[19]
 
 	return nil
 }

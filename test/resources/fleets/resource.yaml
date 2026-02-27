@@ -1,0 +1,16 @@
+---
+apiVersion: bindplane.observiq.com/v1
+kind: Fleet
+metadata:
+    name: test-fleet
+spec:
+    selector:
+        matchLabels: {}
+---
+apiVersion: bindplane.observiq.com/v1
+kind: Fleet
+metadata:
+    name: ci-fleet
+spec:
+    selector:
+        matchLabels: {}

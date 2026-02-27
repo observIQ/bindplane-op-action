@@ -98,6 +98,20 @@ func WithConfigurationPath(p string) Option {
 	}
 }
 
+// WithConnectorPath sets the path to read connector resources from
+func WithConnectorPath(p string) Option {
+	return func(a *Action) {
+		a.connectorPath = p
+	}
+}
+
+// WithFleetPath sets the path to read fleet resources from
+func WithFleetPath(p string) Option {
+	return func(a *Action) {
+		a.fleetPath = p
+	}
+}
+
 // WithOTELConfigWriteBack sets the flag to enable writing back configuration
 func WithOTELConfigWriteBack(b bool) Option {
 	return func(a *Action) {
@@ -176,7 +190,9 @@ type Action struct {
 	destinationPath   string
 	sourcePath        string
 	processorPath     string
+	connectorPath     string
 	configurationPath string
+	fleetPath         string
 
 	// Auto rollout options
 	autoRollout bool
@@ -244,10 +260,10 @@ func (a *Action) RunRollout(config string) error {
 	return nil
 }
 
-// Apply applies destinations, sources, processors, and configurations
+// Apply applies destinations, sources, processors, connectors, configurations, and fleets
 // in that order. It is important to apply destinations first, followed
-// by resource library sources and processors. Configurations should be
-// applied last because they will reference other resources.
+// by resource library sources, processors, and connectors. Configurations should be
+// applied next because they reference other resources. Fleets are applied last.
 func (a *Action) Apply() error {
 	if a.destinationPath != "" {
 		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindDestination)), zap.String("path", a.destinationPath))
@@ -279,6 +295,16 @@ func (a *Action) Apply() error {
 		a.Logger.Info("No processor path provided, skipping processors")
 	}
 
+	if a.connectorPath != "" {
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindConnector)), zap.String("path", a.connectorPath))
+		err := a.applyAll(a.connectorPath)
+		if err != nil {
+			return fmt.Errorf("connectors: %w", err)
+		}
+	} else {
+		a.Logger.Info("No connector path provided, skipping connectors")
+	}
+
 	if a.configurationPath != "" {
 		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindConfiguration)), zap.String("path", a.configurationPath))
 		err := a.applyAll(a.configurationPath)
@@ -287,6 +313,16 @@ func (a *Action) Apply() error {
 		}
 	} else {
 		a.Logger.Info("No configuration path provided, skipping configuration")
+	}
+
+	if a.fleetPath != "" {
+		a.Logger.Info("Applying resources", zap.String("Kind", string(model.KindFleet)), zap.String("path", a.fleetPath))
+		err := a.applyAll(a.fleetPath)
+		if err != nil {
+			return fmt.Errorf("fleets: %w", err)
+		}
+	} else {
+		a.Logger.Info("No fleet path provided, skipping fleets")
 	}
 
 	return nil

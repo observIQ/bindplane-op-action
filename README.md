@@ -21,6 +21,8 @@ Bindplane requires a license. You can request a free license [here](https://obse
 | destination_path              |          | Path to the file or directory which contains the Bindplane destination resources                                                                                                                                                                      |
 | source_path                   |          | Path to the file or directory which contains the Bindplane source resources                                                                                                                                                                           |
 | processor_path                |          | Path to the file or directory which contains the Bindplane processor resources                                                                                                                                                                        |
+| connector_path                |          | Path to the file or directory which contains the Bindplane connector resources                                                                                                                                                                        |
+| fleet_path                    |          | Path to the file or directory which contains the Bindplane fleet resources                                                                                                                                                                             |
 | configuration_path            |          | Path to the file or directory which contains the Bindplane configuration resources                                                                                                                                                                    |
 | enable_otel_config_write_back | `false`  | Whether or not the action should write the raw OpenTelemetry configurations back to the repository.                                                                                                                                      |
 | configuration_output_dir      |          | When write back is enabled, this is the path that will be written to.                                                                                                                                                                    |
@@ -42,6 +44,8 @@ the `bindplane get` commands with the `--export` flag.
 bindplane get destination -o yaml --export > destination.yaml
 bindplane get source -o yaml --export > source.yaml
 bindplane get processor -o yaml --export > processor.yaml
+bindplane get connector -o yaml --export > connector.yaml
+bindplane get fleet -o yaml --export > fleet.yaml
 bindplane get configuration -o yaml --export > configuration.yaml
 ```
 
@@ -89,6 +93,8 @@ jobs:
           bindplane_password: ${{ secrets.BINDPLANE_PASSWORD }}
           target_branch: main
           destination_path: destination.yaml
+          connector_path: connector.yaml
+          fleet_path: fleet.yaml
           configuration_path: configuration.yaml
           enable_otel_config_write_back: true
           configuration_output_dir: otel/
@@ -125,6 +131,8 @@ using a TLS endpoint (`https`).
     bindplane_password: ${{ secrets.BINDPLANE_PASSWORD }}
     target_branch: main
     destination_path: destination.yaml
+    connector_path: connector.yaml
+    fleet_path: fleet.yaml
     configuration_path: configuration.yaml
 ```
 

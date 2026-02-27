@@ -130,7 +130,9 @@ func validateFilePaths() error {
 		model.KindDestination:   destination_path,
 		model.KindSource:        source_path,
 		model.KindProcessor:     processor_path,
+		model.KindConnector:     connector_path,
 		model.KindConfiguration: configuration_path,
+		model.KindFleet:         fleet_path,
 	}
 
 	for kind, path := range files {
