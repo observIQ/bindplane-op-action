@@ -72,21 +72,15 @@ jobs:
         # correct set of resources. Connectors and fleets are only applied and
         # queried when the version supports them.
         include:
-          - bindplane_versions: 1.55.0
-            support_connectors: false
-            support_fleets: false
-          - bindplane_versions: 1.59.0
-            support_connectors: false
-            support_fleets: false
-          - bindplane_versions: 1.83.0
-            support_connectors: true
-            support_fleets: false
           - bindplane_versions: 1.91.0
             support_connectors: true
             support_fleets: true
           - bindplane_versions: 1.100.0
             support_connectors: true
             support_fleets: true
+          - bindplane_versions: 1.102.0
+            support_connectors: false
+            support_fleets: false
           - bindplane_versions: latest
             support_connectors: true
             support_fleets: true
