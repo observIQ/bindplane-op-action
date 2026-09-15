@@ -114,24 +114,6 @@ spec:
     contentType: ""
     measurementInterval: ""
     sources:
-        - id: 01HMS8ERRSFYE4KGQVQ2ZXXDZK
-          type: k8s_container
-          parameters:
-            - name: cluster_name
-              value: minikube
-            - name: log_source
-              value: file
-            - name: file_path
-              value:
-                - /var/log/containers/*.log
-            - name: exclude_file_path
-              value:
-                - /var/log/containers/observiq-*-collector-*
-                - /var/log/containers/bindplane-*-agent-*
-            - name: journald_path
-              value: ""
-            - name: start_at
-              value: end
         - id: 01HMS8ERRSFYE4KGQVQ8DQC5X0
           type: k8s_kubelet
           parameters:
