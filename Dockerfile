@@ -1,5 +1,4 @@
 FROM golang:1.26.10-alpine AS builder
-RUN apk upgrade --no-cache ca-certificates
 WORKDIR /app
 COPY . .
 WORKDIR /app/cmd/action
